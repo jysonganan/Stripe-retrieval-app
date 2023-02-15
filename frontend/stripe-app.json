@@ -1,0 +1,26 @@
+{
+  "id": "com.example.basic-oauth2-test",
+  "version": "0.0.2",
+  "name": "Basic-OAuth2 Test",
+  "icon": "",
+  "permissions": [],
+  "app_backend": {
+    "webhooks": null
+  },
+  "ui_extension": {
+    "views": [
+      {
+        "viewport": "stripe.dashboard.home.overview",
+        "component": "App"
+      }
+    ],
+    "actions": [],
+    "content_security_policy": {
+      "connect-src": null,
+      "image-src": null,
+      "purpose": ""
+    }
+  },
+  "post_install_action": null,
+  "constants": null
+}
