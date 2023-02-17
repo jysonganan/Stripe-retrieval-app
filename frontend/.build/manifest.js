@@ -4,7 +4,7 @@ import App from '../src/views/App';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-02-15 20:48:28.9864094 +0530 IST m=+0.012315493'
+export const BUILD_TIME = '2023-02-17 17:10:04.786067832 +0530 IST m=+0.019869737'
 
 export {
 	
