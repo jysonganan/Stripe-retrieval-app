@@ -4,7 +4,7 @@ import App from '../src/views/App';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-02-17 17:10:04.786067832 +0530 IST m=+0.019869737'
+export const BUILD_TIME = '2023-02-19 21:26:29.277381983 +0530 IST m=+0.011643148'
 
 export {
 	
@@ -16,7 +16,12 @@ export default {
   "version": "0.0.2",
   "name": "Basic-OAuth2 Test",
   "icon": "",
-  "permissions": [],
+  "permissions": [
+    {
+      "permission": "secret_write",
+      "purpose": "Allows storing secrets between page reloads"
+    }
+  ],
   "app_backend": {
     "webhooks": null
   },
