@@ -1,6 +1,7 @@
 import {
   ContextView,
   Button,
+  SignInView
 } from '@stripe/ui-extension-sdk/ui';
 import * as React from 'react';
 import {createOAuthState} from '@stripe/ui-extension-sdk/oauth';
@@ -39,7 +40,7 @@ const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
 
 
   return (
-    <ContextView title="OAuth">
+    <ContextView title="Getting Started with OAuth">
       <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
     </ContextView>
   );
