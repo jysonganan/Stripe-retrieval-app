@@ -17,6 +17,10 @@
       {
         "viewport": "stripe.dashboard.home.overview",
         "component": "App"
+      },
+      {
+        "viewport": "stripe.dashboard.customer.detail",
+        "component": "CustomerDetailView"
       }
     ],
     "actions": [],

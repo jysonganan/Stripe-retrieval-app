@@ -2,13 +2,12 @@ import json
 import os
 import secrets
 import string
-
 import stripe
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, jsonify, render_template, redirect, request, session, send_from_directory
 import urllib
 
-# Setup Stripe python client library
+
 load_dotenv(find_dotenv())
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 stripe.api_version = os.getenv('STRIPE_API_VERSION', '2019-12-03')
@@ -17,8 +16,7 @@ static_dir = str(os.path.abspath(os.path.join(__file__ , "..", os.getenv("STATIC
 app = Flask(__name__, static_folder=static_dir,
             static_url_path="", template_folder=static_dir)
 
-# Set the secret key to some random bytes. Keep this really secret!
-# This enables Flask sessions.
+
 app.secret_key = b'_5#y2L"JF878z\n\xec]/'
 
 @app.route("/get-oauth-link/", methods=["GET"])
@@ -39,7 +37,7 @@ def construct_oauth_link():
     return redirect(url)
 
 
-@app.route("/authorize-oauth", methods=["GET"])
+@app.route("/authorize-oauth/", methods=["GET"])
 def handle_oauth_redirect():
   if request.args.get("state") != session['state']:
     return json.dumps({"error": "Incorrect state parameter: " + request.args.get("state")}), 403
@@ -52,15 +50,29 @@ def handle_oauth_redirect():
     return json.dumps({"error": "Invalid authorization code: " + code}), 400
   except Exception as e:
     return json.dumps({"error": "An unknown error occurred."}), 500
-
+  access_token = response['access_token']
+  # print("Access-Token:", access_token)
+  print("Response: ", response)
   connected_account_id = response["stripe_user_id"]
+  tokenData = {
+     'account_id': connected_account_id,
+     'access_token': access_token
+  }
+  tokenData = json.dumps(tokenData)
+  secret_store = stripe.apps.Secret.create(
+     name= 'My_API_KEY',
+     payload= tokenData,
+     scope= {'type': 'account'}
+  )
+  print("Secret Store API:", secret_store)
   save_account_id(connected_account_id)
+  # Setting Secret Store API
 
   
   return redirect("https://dashboard.stripe.com/test/dashboard")
 
 def save_account_id(id):
-  # Save the connected account ID from the response to your database.
+  # We can save the connected Account ID to our Database
   print("Connected account ID: ", id)
 
 if __name__ == '__main__':
