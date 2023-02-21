@@ -6,7 +6,7 @@ import CustomerDetailView from '../src/views/CustomerDetailView';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-02-20 20:08:29.23379838 +0530 IST m=+0.011658211'
+export const BUILD_TIME = '2023-02-21 17:48:31.152074865 +0530 IST m=+0.011302141'
 
 export {
 	
