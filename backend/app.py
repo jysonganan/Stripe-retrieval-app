@@ -1,7 +1,5 @@
 import json
 import os
-import secrets
-import string
 import stripe
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, jsonify, render_template, redirect, request, session, send_from_directory
@@ -82,11 +80,13 @@ def save_account_id(id):
     print("Connected account ID: ", id)
 
 
-@app.route('/verify_user/', methods=["POST"])
+@app.route('/verify_user/', methods=["POST", 'GET'])
 def verify_user():
-    args = request.args.to_dict()
-    print(args)
-    return args
+    payload = request.data
+    sig_header = request.headers.get('Stripe-Signature')
+    print("Payload: ", payload)
+
+    return payload
 
 
 if __name__ == '__main__':
