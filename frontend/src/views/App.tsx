@@ -1,49 +1,73 @@
-import {
-  ContextView,
-  Button,
-  SignInView
-} from '@stripe/ui-extension-sdk/ui';
+import { ContextView, Button, Box} from '@stripe/ui-extension-sdk/ui';
 import * as React from 'react';
-import {createOAuthState} from '@stripe/ui-extension-sdk/oauth';
-import type {ExtensionContextValue} from '@stripe/ui-extension-sdk/context';
+import { createOAuthState } from '@stripe/ui-extension-sdk/oauth';
+import type { ExtensionContextValue } from '@stripe/ui-extension-sdk/context';
+import fetchStripeSignature from '@stripe/ui-extension-sdk/signature';
 
-const {useState, useEffect} = React;
 
-const clientID = 'ca_NMVdZWTZSaRhb4nrYRxpPwJ3un4nMSqI';
-const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/${
-  mode === 'test' ? 'test/' : ''}apps-oauth/com.example.oauth-example`;
+const { useState, useEffect } = React;
+const [hasSignedIn, sethasSignedIn] = useState<boolean>(false);
+
+const BACKEND_URL = 'http://localhost:5000/verify_user/';
+
+const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/${mode === 'test' ? 'test/' : ''}apps-oauth/com.example.oauth-example`;
+
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
   `http://localhost:5000/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&code_challenge_method=S256`;
 
-  interface TokenData{
-    account_id: string;
-    access_token: string;
-    expires_in: number;
-  }
-  
 
-
-  const OAuthApp = ({environment, oauthContext}: ExtensionContextValue) => {
-  const {mode} = environment;
+const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
+  const { mode } = environment;
   const [authURL, setAuthURL] = useState('');
-  
-  const [tokenData, setTokenData] = useState<TokenData | null>(null);
-  const code = oauthContext?.code || '';
-  const verifier = oauthContext?.verifier || '';
+
 
   // 1. Getting OAuth URL
+
+
+  // 2. Verify User
+  const payload = JSON.stringify({
+    user_id: userContext?.id,
+    account_id: userContext?.account.id
+  });
+  const validateUser= async() =>{
+    try{
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers:{
+          'Content-type': 'application/json',
+          'Stripe-Signature': await fetchStripeSignature(),
+        },
+        body: payload
+      });
+      const body = await response.json()
+    
+    }catch(error){
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    createOAuthState().then(({state, challenge}) => {
+    validateUser();
+    if(!hasSignedIn){
+      
+    }
+    createOAuthState().then(({ state, challenge }) => {
       setAuthURL(getAuthURL(state, challenge, mode));
     });
   }, [mode]);
-
-
   return (
-    <ContextView title="Getting Started with OAuth">
-      <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+    <ContextView title="Payout App[TEST]">
+      <Box css={{padding:"large"}}>
+
+      </Box>
+      {/* <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button> */}
+
     </ContextView>
+
   );
+
+
+
 };
 export default OAuthApp;
 
