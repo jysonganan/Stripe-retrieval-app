@@ -1,8 +1,10 @@
 import json
 import os
+from flask_cors import CORS, cross_origin
+import requests
 import stripe
 from dotenv import load_dotenv, find_dotenv
-from flask import Flask, jsonify, render_template, redirect, request, session, send_from_directory
+from flask import Flask, jsonify, render_template, redirect, request, session, send_from_directory, make_response
 import urllib
 from flask import Response
 
@@ -15,7 +17,8 @@ static_dir = str(os.path.abspath(os.path.join(
 app = Flask(__name__, static_folder=static_dir,
             static_url_path="", template_folder=static_dir)
 
-
+cors = CORS(app)
+app.config['CORS_HEADERS'] = ['Content-type', 'Stripe-Signature']
 app.secret_key = b'_5#y2L"JF878z\n\xec]/'
 
 
@@ -47,7 +50,7 @@ def handle_oauth_redirect():
     code = request.args.get("code")
     try:
         response = stripe.OAuth.token(
-            grant_type="authorization_code", code=code,)
+            grant_type="authorization_code", code=code, )
     except stripe.oauth_error.OAuthError as e:
         return json.dumps({"error": "Invalid authorization code: " + code}), 400
     except Exception as e:
@@ -80,13 +83,22 @@ def save_account_id(id):
     print("Connected account ID: ", id)
 
 
-@app.route('/verify-user/', methods=["POST", "GET"])
+@app.route('/health-check', methods=["GET", "POST"])
 def verify_user():
-    payload = request.data
-    sig_header = request.headers.get('Stripe-Signature')
-    print("Payload: ", payload)
+    # if request.method == 'OPTIONS':
+    #     return _build_cors_preflight_response()
+    response = requests.get('https://api.stripe.com/healthcheck')
+    print(response.reason)
+    result = response.reason
+    return jsonify(result)
 
-    return payload
+
+def _build_cors_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add('Access-Control-Allow-Headers', "*")
+    response.headers.add('Access-Control-Allow-Methods', "*")
+    return response
 
 
 if __name__ == '__main__':
