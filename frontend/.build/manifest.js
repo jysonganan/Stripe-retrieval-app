@@ -2,17 +2,14 @@
 
 import App from '../src/views/App';
 
-import CustomerDetailView from '../src/views/CustomerDetailView';
-
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-02-23 19:09:38.603414018 +0530 IST m=+0.010505198'
+export const BUILD_TIME = '2023-02-23 20:13:04.846413261 +0530 IST m=+0.060712294'
 
 export {
 	
 	App,
-	
-	CustomerDetailView,
+
 	
 };
 export default {
@@ -35,10 +32,7 @@ export default {
         "viewport": "stripe.dashboard.home.overview",
         "component": "App"
       },
-      {
-        "viewport": "stripe.dashboard.customer.detail",
-        "component": "CustomerDetailView"
-      }
+
     ],
     "actions": [],
     "content_security_policy": {
