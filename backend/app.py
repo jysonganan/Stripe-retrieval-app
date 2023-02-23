@@ -4,7 +4,7 @@ import stripe
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, jsonify, render_template, redirect, request, session, send_from_directory
 import urllib
-
+from flask import Response
 
 load_dotenv(find_dotenv())
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
@@ -80,7 +80,7 @@ def save_account_id(id):
     print("Connected account ID: ", id)
 
 
-@app.route('/verify_user/', methods=["POST", 'GET'])
+@app.route('/verify-user/', methods=["POST", "GET"])
 def verify_user():
     payload = request.data
     sig_header = request.headers.get('Stripe-Signature')
