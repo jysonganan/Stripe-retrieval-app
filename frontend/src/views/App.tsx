@@ -21,27 +21,43 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const [authURL, setAuthURL] = useState('');
     // const [hasSignedIn, sethasSignedIn] = useState<boolean>(false);
     const [stripeStatus, setStripeStatus] = useState<string>('down');
-
+    const [result, setResult] = useState(null)
+    const [hasSignedIn, setHasSignedIn] = useState<boolean>(false);
     const getStatus = async () =>{
-        const {status} = await fetch('http://localhost:5000/health-check', {
-            method:"GET",
+        const data = await fetch('http://localhost:5000/health-check', {
+            method:"POST",
             headers:{
-                // 'stripe-signature': await fetchStripeSignature(),
+                'stripe-signature': await fetchStripeSignature(),
                 'Content-type': 'application/json'
             },
-            // body:JSON.stringify({
-            //     user_id: userContext?.id,
-            //     account_id: userContext?.account.id
-            // })
-        }).then((res)=> res.json())
-            .then(result=> setStripeStatus(result=='OK'? 'up': 'down'))
-        setStripeStatus(status == 'OK'? 'up': 'down')
+            body:JSON.stringify({
+                user_id: userContext?.id,
+                account_id: userContext?.account.id
+            })
+        }).then(response => response.json())
+            .then(data => setHasSignedIn(data.hasSignedIn))
+        console.log(hasSignedIn)
+
+
+        setStripeStatus(hasSignedIn? 'up': 'down')
+
+        // setStripeStatus(status == 'OK'? 'up': 'down')
     }
+    const getPayoutsDetails = async () =>{
+        const data = await fetch('http://localhost:5000/get_customers/', {
+            method: "GET",
+            body:JSON.stringify({
+                account_id: userContext?.account.id
+            })
+        })
+    }
+    getPayoutsDetails();
     getStatus();
     useEffect(() => {
         // validateUser();
-
-        createOAuthState().then(({state, challenge}) => {
+        if(hasSignedIn){
+            // Getting Payouts Details
+        }        createOAuthState().then(({state, challenge}) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
     }, [mode]);
@@ -49,7 +65,10 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
 
         <ContextView title="Payout App[TEST]">
             <Box>Stripe is {stripeStatus}</Box>
+            {!hasSignedIn &&
+
             <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+            }
         </ContextView>
 
     );

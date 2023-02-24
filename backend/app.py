@@ -85,12 +85,38 @@ def save_account_id(id):
 
 @app.route('/health-check', methods=["GET", "POST"])
 def verify_user():
-    # if request.method == 'OPTIONS':
-    #     return _build_cors_preflight_response()
+    args = request.headers
+    # Get the Signature and Payload Data from the Frontend
+    signature = request.headers.get('stripe-signature')
+    payload = request.data.decode('utf-8')
+    payload_json = json.loads(payload)
+    # print("Payload: ", payload)
+    account_id = payload_json['account_id']
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, signature, os.getenv('STRIPE_APP_SECRET')
+        )
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}, 400)
+
+    except stripe.error.SignatureVerificationError as e:
+        print("[ERROR] ", e)
+        return jsonify({'error': str(e)}, 400)
+
     response = requests.get('https://api.stripe.com/healthcheck')
-    print(response.reason)
+    res = {}
     result = response.reason
-    return jsonify(result)
+    print(result)
+
+    return jsonify({"result": result, 'hasSignedIn': True})
+
+
+@app.route('/get_customers/', methods=["GET"])
+def get_customers_list():
+    req = request.data
+    print(req)
+    return req
 
 
 def _build_cors_preflight_response():

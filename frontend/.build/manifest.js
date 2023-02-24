@@ -4,12 +4,11 @@ import App from '../src/views/App';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-02-23 20:13:04.846413261 +0530 IST m=+0.060712294'
+export const BUILD_TIME = '2023-02-24 14:42:57.594081545 +0530 IST m=+0.043055531'
 
 export {
 	
 	App,
-
 	
 };
 export default {
@@ -31,8 +30,7 @@ export default {
       {
         "viewport": "stripe.dashboard.home.overview",
         "component": "App"
-      },
-
+      }
     ],
     "actions": [],
     "content_security_policy": {
