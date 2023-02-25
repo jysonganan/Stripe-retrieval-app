@@ -2,13 +2,17 @@
 
 import App from '../src/views/App';
 
+import BalanceOverviewView from '../src/views/BalanceOverviewView';
+
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-02-24 14:42:57.594081545 +0530 IST m=+0.043055531'
+export const BUILD_TIME = '2023-02-25 16:15:51.415991319 +0530 IST m=+0.012192884'
 
 export {
 	
 	App,
+	
+	BalanceOverviewView,
 	
 };
 export default {
@@ -30,6 +34,10 @@ export default {
       {
         "viewport": "stripe.dashboard.home.overview",
         "component": "App"
+      },
+      {
+        "viewport": "stripe.dashboard.balance.overview",
+        "component": "BalanceOverviewView"
       }
     ],
     "actions": [],
