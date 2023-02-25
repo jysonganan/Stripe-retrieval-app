@@ -17,8 +17,11 @@
       {
         "viewport": "stripe.dashboard.home.overview",
         "component": "App"
+      },
+      {
+        "viewport": "stripe.dashboard.balance.overview",
+        "component": "BalanceOverviewView"
       }
-
     ],
     "actions": [],
     "content_security_policy": {
