@@ -112,11 +112,23 @@ def verify_user():
     return jsonify({"result": result, 'hasSignedIn': True})
 
 
-@app.route('/get_customers/', methods=["GET"])
+@app.route('/get_customers/', methods=["POST"])
 def get_customers_list():
-    req = request.data
-    print(req)
-    return req
+    # Getting the Account ID From Body
+    payload = request.data.decode('utf-8')
+    payload_json = json.loads(payload)
+    account_id = payload_json['account_id']
+
+    # Performing Actions to receive data from Stripe API
+    name = []
+    customer_id = []
+    res = stripe.Customer.list(limit=3)
+    for i in range(0, len(res["data"])):
+        name.append(res["data"][i]["name"])
+        customer_id.append(res["data"][i]["id"])
+    name = json.dumps(name)
+    customer_id = json.dumps(customer_id)
+    return jsonify({'names': name, 'customer_id': customer_id})
 
 
 def _build_cors_preflight_response():
