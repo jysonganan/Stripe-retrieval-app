@@ -7,6 +7,9 @@ from dotenv import load_dotenv, find_dotenv
 from flask import Flask, jsonify, render_template, redirect, request, session, send_from_directory, make_response
 import urllib
 from flask import Response
+import datetime
+import pandas as pd
+import numpy as np
 
 load_dotenv(find_dotenv())
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
@@ -131,6 +134,41 @@ def get_customers_list():
     return jsonify({'names': name, 'customer_id': customer_id})
 
 
+# Getting Payouts in JSON Object
+@app.route('/get_payouts/', methods=["POST"])
+def get_payouts():
+    if request.method == 'OPTIONS':
+        return _build_cors_preflight_response()
+
+    if request.method == "POST":
+        current_month = '01'
+        current_year = '2023'
+        stripe.api_key = ""
+        arrival_dates = [
+            datetime.datetime.fromtimestamp(stripe.Payout.list(limit=10)['data'][i]['arrival_date']).strftime(
+                "%m/%d/%Y")
+            for i in range(len(stripe.Payout.list()['data']))]
+        arrival_dates_month_year = list(map(lambda x: x[:2] + ' ' + x[-4:], arrival_dates))
+        current_pay_out_ids = np.where(np.array(arrival_dates_month_year) == current_month + ' ' + current_year)
+        current_pay_out_ids = [stripe.Payout.list()['data'][i]['id'] for i in current_pay_out_ids[0]]
+        output_df = pd.DataFrame([])
+
+        for payout_id in current_pay_out_ids:
+            transactions = stripe.BalanceTransaction.list(payout=payout_id, limit=10)
+            payout_total = transactions['data'][0]['amount'] / 100 * (-1)
+            for i in range(1, len(transactions['data'])):
+                created = datetime.datetime.fromtimestamp(transactions['data'][i]['created'])
+                description = transactions['data'][i]['description']
+                amount = transactions['data'][i]['amount'] / 100
+                net = transactions['data'][i]['net'] / 100
+
+                output_df = pd.concat([output_df, pd.DataFrame([created, description,
+                                                                amount, net]).T], axis=0)
+        output_df.columns = ['Created', 'Description', 'Amount', 'Net']
+        output_df_json = output_df.to_json(orient='records')
+        return _corsify_actual_response(jsonify(output_df_json))
+
+
 def _build_cors_preflight_response():
     response = make_response()
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -138,6 +176,10 @@ def _build_cors_preflight_response():
     response.headers.add('Access-Control-Allow-Methods', "*")
     return response
 
+
+def _corsify_actual_response(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
