@@ -6,38 +6,93 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     useEffect(() => {
-        fetch('http://localhost:5000/get_customers/', {
+        fetch('http://localhost:5000/get_payouts/', {
             method: 'POST',
             headers: {"Content-type": 'application/json'},
             body: JSON.stringify({account_id: userContext?.account.id})
         }).then(response => response.json())
             .then(data => {
-                setMyData(data)
+                setMyData(JSON.parse(data))
             })
     }, []);
-    let customer_ids = []
-    let customer_names = []
-    for (const key in data) {
-        let values = Object.values(data)
-        customer_ids = JSON.parse(values[0].split(", "));
-        customer_names = JSON.parse(values[1].split(", "))
+    let created: never[] = []
+    let descr: never[] = []
+    let amount: never[] = []
+    let net: never[] = []
+    const values = Object.values(data)
+    for (let val in values) {
+        created.push(values[val].Created)
+        descr.push(values[val].Description)
+        net.push(values[val].Net)
     }
-    console.log(customer_ids)
+    let new_created = created.map(create => new Date(created[0]).toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    }))
+
+    console.log(new_created)
+
+
     return (
         <ContextView title="User Details">
             <List>
                 <ListItem
-                    value="$1200.00"
+                    value={net[0]}
                     id="2"
-                    title={<Box>{customer_names[0]}</Box>}
-                    secondaryTitle={<Box>{customer_ids[0]}</Box>}
+                    title={<Box>{new_created[0]}</Box>}
+                    secondaryTitle={<Box>{descr[0]}</Box>}
                 />
                 <ListItem
-                value="$1000.00"
-                id="2"
-                title={<Box>{customer_names[1]}</Box>}
-                secondaryTitle={<Box>{customer_ids[1]}</Box>}
-            />
+                    value={net[1]}
+                    id="2"
+                    title={<Box>{new_created[1]}</Box>}
+                    secondaryTitle={<Box>{descr[1]}</Box>}
+                />
+                <ListItem
+                    value={net[2]}
+                    id="2"
+                    title={<Box>{new_created[2]}</Box>}
+                    secondaryTitle={<Box>{descr[2]}</Box>}
+                />
+                <ListItem
+                    value={net[3]}
+                    id="2"
+                    title={<Box>{new_created[3]}</Box>}
+                    secondaryTitle={<Box>{descr[3]}</Box>}
+                />
+                <ListItem
+                    value={net[4]}
+                    id="2"
+                    title={<Box>{new_created[4]}</Box>}
+                    secondaryTitle={<Box>{descr[4]}</Box>}
+                />
+                <ListItem
+                    value={net[5]}
+                    id="2"
+                    title={<Box>{new_created[5]}</Box>}
+                    secondaryTitle={<Box>{descr[5]}</Box>}
+                />
+                <ListItem
+                    value={net[6]}
+                    id="2"
+                    title={<Box>{new_created[6]}</Box>}
+                    secondaryTitle={<Box>{descr[6]}</Box>}
+                />
+                <ListItem
+                    value={net[7]}
+                    id="2"
+                    title={<Box>{new_created[7]}</Box>}
+                    secondaryTitle={<Box>{descr[7]}</Box>}
+                />
+                <ListItem
+                    value={net[8]}
+                    id="2"
+                    title={<Box>{new_created[8]}</Box>}
+                    secondaryTitle={<Box>{descr[8]}</Box>}
+                />
+
+
             </List>
         </ContextView>
     )
