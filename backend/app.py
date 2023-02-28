@@ -4,12 +4,13 @@ from flask_cors import CORS, cross_origin
 import requests
 import stripe
 from dotenv import load_dotenv, find_dotenv
-from flask import Flask, jsonify, render_template, redirect, request, session, send_from_directory, make_response
+from flask import Flask, jsonify, render_template, redirect, request, session, make_response, send_file
 import urllib
 from flask import Response
 import datetime
 import pandas as pd
 import numpy as np
+import retrieve_current_payouts
 
 load_dotenv(find_dotenv())
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
@@ -169,6 +170,16 @@ def get_payouts():
         return _corsify_actual_response(jsonify(output_df_json))
 
 
+@app.route('/download-report/')
+def download_csv():
+    res = retrieve_current_payouts.retrieve_current_payouts(
+        api_key="")
+    filename = os.path.join('UserData', 'PayoutData.csv')
+    res.to_csv(filename, index=False)
+
+    return send_file(filename, mimetype='text/csv', as_attachment=True)
+
+
 def _build_cors_preflight_response():
     response = make_response()
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -180,6 +191,7 @@ def _build_cors_preflight_response():
 def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
