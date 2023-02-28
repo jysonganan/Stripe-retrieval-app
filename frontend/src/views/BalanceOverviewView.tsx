@@ -1,8 +1,12 @@
-import {Box, ContextView, Inline, ListItem, List} from "@stripe/ui-extension-sdk/ui";
+import {Box, ContextView, Divider, ListItem, List, Button} from "@stripe/ui-extension-sdk/ui";
 import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
 import {useEffect, useState} from "react";
 
+// Download Endpoint
+
+
 const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
+    const downloadEndpoint = "http://localhost:5000/download-report/";
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     useEffect(() => {
@@ -25,14 +29,27 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
         descr.push(values[val].Description)
         net.push(values[val].Net)
     }
-    let new_created = created.map(create => new Date(created[0]).toLocaleString("en-US", {
+    let new_created = created.map(create => new Date(create).toLocaleString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
     }))
 
-    console.log(new_created)
+    // 2. Downloading A CSV File
+    const downloadCSV = () => {
+        fetch('http://localhost:5000/download-report/')
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'PayoutData.csv');
+                document.body.appendChild(link);
+                link.click();
 
+
+            })
+    }
 
     return (
         <ContextView title="User Details">
@@ -94,8 +111,13 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
 
 
             </List>
+
+            <Box css={{stack: 'y', gap: 'large', margin: 'large'}}>
+                <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}} target="_blank">Download
+                    CSV</Button></Box>
         </ContextView>
     )
 };
 
 export default BalanceOverviewView;
+
