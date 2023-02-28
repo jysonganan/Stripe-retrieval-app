@@ -4,6 +4,7 @@ import pandas as pd
 import datetime
 
 api_key = ""
+import os
 
 
 def retrieve_current_payouts(api_key, current_month='01', current_year='2023'):
@@ -46,3 +47,4 @@ def retrieve_current_payouts(api_key, current_month='01', current_year='2023'):
 
 if __name__ == '__main__':
     res = retrieve_current_payouts(api_key=api_key)
+    # res.to_csv(os.path.join('PayoutData.csv'), index=False)
