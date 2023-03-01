@@ -6,7 +6,6 @@ import stripe
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, jsonify, render_template, redirect, request, session, make_response, send_file
 import urllib
-from flask import Response
 import datetime
 import pandas as pd
 import numpy as np
@@ -32,12 +31,16 @@ def construct_oauth_link():
     get_data = request.args.to_dict()
 
     state = get_data['state']
+    mode = get_data['mode']
+    print(mode)
     session['state'] = state
+    session['mode'] = mode
     args = {
         "client_id": os.getenv('STRIPE_CLIENT_ID'),
         "state": state,
         "scope": "read_write",
         "response_type": "code",
+        "mode": mode
     }
     url = "https://connect.stripe.com/oauth/authorize?{}".format(
         urllib.parse.urlencode(args))
@@ -96,6 +99,8 @@ def verify_user():
     payload_json = json.loads(payload)
     # print("Payload: ", payload)
     account_id = payload_json['account_id']
+    account_check = check_for_account_id(account_id)
+    print("AccessToken: ", account_check)
     try:
         event = stripe.Webhook.construct_event(
             payload, signature, os.getenv('STRIPE_APP_SECRET')
@@ -111,9 +116,21 @@ def verify_user():
     response = requests.get('https://api.stripe.com/healthcheck')
     res = {}
     result = response.reason
+    if account_check is not False:
+        hasSignedIn = True
+    else:
+        hasSignedIn = False
     print(result)
+    return jsonify({"result": result, 'hasSignedIn': hasSignedIn})
 
-    return jsonify({"result": result, 'hasSignedIn': True})
+
+def check_for_account_id(account_id):
+    df = pd.read_json(os.path.join("UserData/UserInfo.json"))
+    if account_id in df['account_id'].values:
+        user_row = df.loc[df['account_id'] == account_id, ['account_id', 'access_token']]
+        return user_row['access_token']
+    else:
+        return False
 
 
 @app.route('/get_customers/', methods=["POST"])
@@ -126,7 +143,7 @@ def get_customers_list():
     # Performing Actions to receive data from Stripe API
     name = []
     customer_id = []
-    res = stripe.Customer.list(limit=3)
+    res = stripe.Customer.list(limit=3, stripe_account=account_id)
     for i in range(0, len(res["data"])):
         name.append(res["data"][i]["name"])
         customer_id.append(res["data"][i]["id"])
