@@ -6,9 +6,8 @@ import datetime
 api_key = ""
 
 
-def retrieve_current_payouts(api_key, current_month='01', current_year='2023'):
+def retrieve_current_payouts(api_key, current_month='12', current_year='2021'):
     stripe.api_key = api_key
-
     arrival_dates = [
         datetime.datetime.fromtimestamp(stripe.Payout.list(limit=10)['data'][i]['arrival_date']).strftime("%m/%d/%Y")
         for i in range(len(stripe.Payout.list()['data']))]
@@ -17,7 +16,6 @@ def retrieve_current_payouts(api_key, current_month='01', current_year='2023'):
     current_pay_out_ids = [stripe.Payout.list()['data'][i]['id'] for i in current_pay_out_ids[0]]
 
     output_df = pd.DataFrame([])
-    sec_output_df = pd.DataFrame([])
     for pay_out_id in current_pay_out_ids:
         transactions = stripe.BalanceTransaction.list(payout=pay_out_id, limit=10)
         payout_total = transactions['data'][0]['amount'] / 100 * (-1)
@@ -36,13 +34,13 @@ def retrieve_current_payouts(api_key, current_month='01', current_year='2023'):
                                                             converted_amount, fees,
                                                             net]).T], axis=0)
 
-            sec_output_df = pd.concat([sec_output_df, pd.DataFrame([created, description, amount, net]).T], axis=0)
-    output_df.columns = ['payout_id', 'payout_total', 'Created', 'Description', 'Amount', 'Currency',
-                         'Converted Amount', 'Fees', 'Net']
-    sec_output_df.columns = ['Created', 'Description', 'Amount', 'Net']
-    sec_output_df_json = sec_output_df.to_json(orient='records')
+    if output_df.shape[0] != 0:
+        output_df.columns = ['payout_id', 'payout_total', 'Created', 'Description', 'Amount', 'Currency',
+                             'Converted Amount', 'Fees', 'Net']
+
     return output_df
 
 
-if __name__ == '__main__':
-    res = retrieve_current_payouts(api_key=api_key)
+# if __name__ == '__main__':
+#     res = retrieve_current_payouts(api_key=api_key)
+#     print(res)
