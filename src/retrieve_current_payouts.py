@@ -37,9 +37,11 @@ def retrieve_current_payouts(api_key, current_month='01', current_year='2023'):
                                                             net]).T], axis=0)
 
             sec_output_df = pd.concat([sec_output_df, pd.DataFrame([created, description, amount, net]).T], axis=0)
-    output_df.columns = ['payout_id', 'payout_total', 'Created', 'Description', 'Amount', 'Currency',
-                         'Converted Amount', 'Fees', 'Net']
-    sec_output_df.columns = ['Created', 'Description', 'Amount', 'Net']
+    if output_df.shape[0] != 0: 
+       output_df.columns = ['payout_id', 'payout_total', 'Created', 'Description', 'Amount', 'Currency',
+                            'Converted Amount', 'Fees', 'Net']
+    if sec_output_df.shape[0] != 0:
+       sec_output_df.columns = ['Created', 'Description', 'Amount', 'Net']
     sec_output_df_json = sec_output_df.to_json(orient='records')
     return output_df
 
