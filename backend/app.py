@@ -24,10 +24,11 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = ['Content-type', 'Stripe-Signature']
 app.secret_key = b'_5#y2L"JF878z\n\xec]/'
 
+USER_INFO_FILE = os.path.join("UserData/UserInfo.json")
+
 
 @app.route("/get-oauth-link/", methods=["GET", 'POST'])
 def construct_oauth_link():
-    # state = ''.join([secrets.choice(string.ascii_letters + string.digits) for n in range(16)])
     get_data = request.args.to_dict()
 
     state = get_data['state']
@@ -63,16 +64,12 @@ def handle_oauth_redirect():
     except Exception as e:
         return json.dumps({"error": "An unknown error occurred."}), 500
     access_token = response['access_token']
-    # print("Access-Token:", access_token)
-    print("Response: ", response)
     connected_account_id = response["stripe_user_id"]
     tokenData = {
         'account_id': connected_account_id,
         'access_token': access_token
     }
-    with open('./data.json', 'a') as f:
-        f.write(json.dumps(tokenData, ensure_ascii=False, indent=4))
-    tokenData = json.dumps(tokenData)
+    save_access_token_to_json(access_token=access_token, account_id=connected_account_id)
     secret_store = stripe.apps.Secret.create(
         name='My_API_KEY',
         payload=tokenData,
@@ -83,6 +80,13 @@ def handle_oauth_redirect():
     # Setting Secret Store API
 
     return redirect("https://dashboard.stripe.com/test/dashboard")
+
+
+def save_access_token_to_json(access_token, account_id):
+    df = pd.read_json(os.path.join("UserData/UserInfo.json"))
+    data = {'account_id': account_id, 'access_token': access_token}
+    df = df.append(data, ignore_index=True)
+    df.to_json(USER_INFO_FILE, orient="records")
 
 
 def save_account_id(id):
@@ -97,10 +101,8 @@ def verify_user():
     signature = request.headers.get('stripe-signature')
     payload = request.data.decode('utf-8')
     payload_json = json.loads(payload)
-    # print("Payload: ", payload)
     account_id = payload_json['account_id']
     account_check = check_for_account_id(account_id)
-    print("AccessToken: ", account_check)
     try:
         event = stripe.Webhook.construct_event(
             payload, signature, os.getenv('STRIPE_APP_SECRET')
@@ -128,7 +130,8 @@ def check_for_account_id(account_id):
     df = pd.read_json(os.path.join("UserData/UserInfo.json"))
     if account_id in df['account_id'].values:
         user_row = df.loc[df['account_id'] == account_id, ['account_id', 'access_token']]
-        return user_row['access_token']
+        user_access_token = user_row['access_token'].values[0]
+        return user_access_token
     else:
         return False
 
@@ -159,41 +162,23 @@ def get_payouts():
         return _build_cors_preflight_response()
 
     if request.method == "POST":
-        current_month = '01'
-        current_year = '2023'
-        stripe.api_key = ""
-        arrival_dates = [
-            datetime.datetime.fromtimestamp(stripe.Payout.list(limit=10)['data'][i]['arrival_date']).strftime(
-                "%m/%d/%Y")
-            for i in range(len(stripe.Payout.list()['data']))]
-        arrival_dates_month_year = list(map(lambda x: x[:2] + ' ' + x[-4:], arrival_dates))
-        current_pay_out_ids = np.where(np.array(arrival_dates_month_year) == current_month + ' ' + current_year)
-        current_pay_out_ids = [stripe.Payout.list()['data'][i]['id'] for i in current_pay_out_ids[0]]
-        output_df = pd.DataFrame([])
-
-        for payout_id in current_pay_out_ids:
-            transactions = stripe.BalanceTransaction.list(payout=payout_id, limit=10)
-            payout_total = transactions['data'][0]['amount'] / 100 * (-1)
-            for i in range(1, len(transactions['data'])):
-                created = datetime.datetime.fromtimestamp(transactions['data'][i]['created'])
-                description = transactions['data'][i]['description']
-                amount = transactions['data'][i]['amount'] / 100
-                net = transactions['data'][i]['net'] / 100
-
-                output_df = pd.concat([output_df, pd.DataFrame([created, description,
-                                                                amount, net]).T], axis=0)
-        output_df.columns = ['Created', 'Description', 'Amount', 'Net']
+        payload = request.data.decode('utf-8')
+        payload_json = json.loads(payload)
+        account_id = payload_json['account_id']
+        access_token = check_for_account_id(account_id=account_id)
+        output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=access_token)
         output_df_json = output_df.to_json(orient='records')
         return _corsify_actual_response(jsonify(output_df_json))
 
 
-@app.route('/download-report/')
+@app.route('/download-report/', methods=["GET"])
 def download_csv():
+    account_id = request.args.get("account_id")
+    access_token = check_for_account_id(account_id=account_id)
     res = retrieve_current_payouts.retrieve_current_payouts(
-        api_key="")
-    filename = os.path.join('UserData', 'PayoutData.csv')
+        api_key=access_token)
+    filename = os.path.join('UserData', f'{account_id}-PayoutData.csv')
     res.to_csv(filename, index=False)
-
     return send_file(filename, mimetype='text/csv', as_attachment=True)
 
 

@@ -6,7 +6,7 @@ import {useEffect, useState} from "react";
 
 
 const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
-    const downloadEndpoint = "http://localhost:5000/download-report/";
+    const downloadEndpoint = `http://localhost:5000/download-report/?account_id=${userContext?.account.id}`;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     useEffect(() => {
@@ -35,21 +35,6 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
         day: "numeric",
     }))
 
-    // 2. Downloading A CSV File
-    const downloadCSV = () => {
-        fetch('http://localhost:5000/download-report/')
-            .then(response => response.blob())
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'PayoutData.csv');
-                document.body.appendChild(link);
-                link.click();
-
-
-            })
-    }
 
     return (
         <ContextView title="User Details">

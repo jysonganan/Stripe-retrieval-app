@@ -4,8 +4,8 @@ import stripe
 import json
 import pandas as pd
 
-account_id = "acct_1JD9NgCgQjBmqTNT"
-stripe.api_key = "sk_test_51MavwaSH4jjnFx7cPtFaSOCTvFPR1yTWydwANf1JQNu6u8O00n26tE7Dzd11wsDSpLzpeQ0sMyfZkSj7yyHKVSSV0087g5pNsL"
+account_id = ""
+stripe.api_key = ""
 
 
 # Getting Stripe Secret Store API LIst
@@ -48,9 +48,14 @@ def check_for_account_id(account_id):
     df = pd.read_json(os.path.join("UserData/UserInfo.json"))
     if account_id in df['account_id'].values:
         user_row = df.loc[df['account_id'] == account_id, ['account_id', 'access_token']]
-        return user_row['access_token']
+        user_access_token = user_row['access_token'].values[0]
+        return user_access_token
     else:
         return False
 
 
-print(check_for_account_id("acct_1MduorSBhp1Zag1P"))
+print(check_for_account_id(""))
+
+
+
+
