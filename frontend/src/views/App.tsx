@@ -19,7 +19,6 @@ const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
 const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const {mode} = environment;
     const [authURL, setAuthURL] = useState('');
-    // const [hasSignedIn, sethasSignedIn] = useState<boolean>(false);
     const [stripeStatus, setStripeStatus] = useState<string>('down');
     const [result, setResult] = useState(null)
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
