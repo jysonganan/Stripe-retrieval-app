@@ -34,6 +34,7 @@ def retrieve_current_payouts(api_key, current_month='12', current_year='2021'):
                                                             converted_amount, fees,
                                                             net]).T], axis=0)
 
+
     if output_df.shape[0] != 0:
         output_df.columns = ['payout_id', 'payout_total', 'Created', 'Description', 'Amount', 'Currency',
                              'Converted Amount', 'Fees', 'Net']
