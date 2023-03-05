@@ -1,4 +1,5 @@
-import {ContextView, Button, Box, Link, Badge} from '@stripe/ui-extension-sdk/ui';
+import {ContextView, Button, Box, Badge, Banner} from '@stripe/ui-extension-sdk/ui';
+import {showToast} from '@stripe/ui-extension-sdk/utils';
 import * as React from 'react';
 import {createOAuthState} from '@stripe/ui-extension-sdk/oauth';
 import type {ExtensionContextValue} from '@stripe/ui-extension-sdk/context';
@@ -57,15 +58,22 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
         <ContextView title="Payout App[TEST]">
             <Box>Stripe is {stripeStatus}</Box>
             {hasSignedIn &&
-                        <Badge type="info">You are Already Authorized to Our App!</Badge>
+                <Badge type="info">You are Already Authorized to Our App!</Badge>
             }
             {!hasSignedIn &&
-
-                <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+                <Banner
+                    type="critical"
+                    title="You have not Authorized!"
+                    description="Please Authorize before you continue"
+                    actions={
+                        <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+                    }
+                />
             }
         </ContextView>
 
-    );
+    )
+        ;
 
 
 };
