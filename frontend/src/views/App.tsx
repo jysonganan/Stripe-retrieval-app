@@ -20,7 +20,6 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const {mode} = environment;
     const [authURL, setAuthURL] = useState('');
     const [stripeStatus, setStripeStatus] = useState<string>('down');
-    const [result, setResult] = useState(null)
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
     const getStatus = async () => {
         const data = await fetch('http://localhost:5000/health-check', {
@@ -67,7 +66,9 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
 
         <ContextView title="Payout App[TEST]">
             <Box>Stripe is {stripeStatus}</Box>
-            <Badge type="info">You are Already Authorized to Our App!</Badge>
+            {hasSignedIn &&
+                        <Badge type="info">You are Already Authorized to Our App!</Badge>
+            }
             {!hasSignedIn &&
 
                 <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
