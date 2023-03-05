@@ -1,24 +1,56 @@
-import {Box, ContextView, Divider, ListItem, List, Button} from "@stripe/ui-extension-sdk/ui";
+import {Box, ContextView, ListItem, List, Button, Badge} from "@stripe/ui-extension-sdk/ui";
 import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
 import {useEffect, useState} from "react";
+import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
+import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
+import * as React from "react";
+
 
 // Download Endpoint
 
+const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
+    `http://localhost:5000/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
 const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
+    const {mode} = environment;
     const downloadEndpoint = `http://localhost:5000/download-report/?account_id=${userContext?.account.id}`;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
+    const [authURL, setAuthURL] = useState('');
+    const [hasSignedIn, setHasSignedIn] = useState(true)
+
     useEffect(() => {
+        createOAuthState().then(({state, challenge}) => {
+            setAuthURL(getAuthURL(state, challenge, mode));
+        });
+
+        const getStatus = async () => {
+            const data = await fetch('http://localhost:5000/health-check', {
+                method: "POST",
+                headers: {
+                    'stripe-signature': await fetchStripeSignature(),
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userContext?.id,
+                    account_id: userContext?.account.id
+                })
+            }).then(response => response.json())
+                .then(data => setHasSignedIn(data.hasSignedIn))
+
+        }
+        getStatus();
         fetch('http://localhost:5000/get_payouts/', {
             method: 'POST',
             headers: {"Content-type": 'application/json'},
             body: JSON.stringify({account_id: userContext?.account.id})
         }).then(response => response.json())
             .then(data => {
-                setMyData(JSON.parse(data))
+                setMyData(JSON.parse(data));
             })
     }, []);
+
+
     let created: never[] = []
     let descr: never[] = []
     let amount: never[] = []
@@ -38,7 +70,7 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
 
     return (
         <ContextView title="User Details">
-            <List>
+            {hasSignedIn && <List>
                 <ListItem
                     value={net[0]}
                     id="2"
@@ -93,13 +125,23 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                     title={<Box>{new_created[8]}</Box>}
                     secondaryTitle={<Box>{descr[8]}</Box>}
                 />
-
-
-            </List>
+            </List>}
 
             <Box css={{stack: 'y', gap: 'large', margin: 'large'}}>
-                <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}} target="_blank">Download
-                    CSV</Button></Box>
+                {hasSignedIn &&
+                    <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}}
+                            target="_blank">Download
+                        CSV</Button>
+                }
+                {!hasSignedIn &&
+                    <Badge type="urgent">Please Authorize before beginning</Badge>
+                }
+                {!hasSignedIn &&
+                    <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+                }
+
+            </Box>
+
         </ContextView>
     )
 };
