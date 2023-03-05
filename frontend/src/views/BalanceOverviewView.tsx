@@ -46,7 +46,7 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
             body: JSON.stringify({account_id: userContext?.account.id})
         }).then(response => response.json())
             .then(data => {
-                setMyData(JSON.parse(data))
+                setMyData(JSON.parse(data));
             })
     }, []);
 
