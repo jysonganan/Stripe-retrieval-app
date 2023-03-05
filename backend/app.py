@@ -1,10 +1,10 @@
 import json
 import os
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import requests
 import stripe
 from dotenv import load_dotenv, find_dotenv
-from flask import Flask, jsonify, render_template, redirect, request, session, make_response, send_file
+from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 import urllib
 import pandas as pd
 import retrieve_current_payouts
