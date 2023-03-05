@@ -1,4 +1,4 @@
-import {Box, ContextView, ListItem, List, Button, Badge} from "@stripe/ui-extension-sdk/ui";
+import {Box, ContextView, ListItem, List, Button, Badge, Banner, Link} from "@stripe/ui-extension-sdk/ui";
 import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
 import {useEffect, useState} from "react";
 import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
@@ -133,11 +133,16 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                             target="_blank">Download
                         CSV</Button>
                 }
+
                 {!hasSignedIn &&
-                    <Badge type="urgent">Please Authorize before beginning</Badge>
-                }
-                {!hasSignedIn &&
-                    <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+                    <Banner
+                        type="critical"
+                        title="You have not Sign In"
+                        description="Please sign in before you continue"
+                        actions={
+                            <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+                        }
+                    />
                 }
 
             </Box>
