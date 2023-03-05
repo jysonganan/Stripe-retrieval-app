@@ -6,9 +6,7 @@ import stripe
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, jsonify, render_template, redirect, request, session, make_response, send_file
 import urllib
-import datetime
 import pandas as pd
-import numpy as np
 import retrieve_current_payouts
 
 load_dotenv(find_dotenv())
@@ -90,7 +88,6 @@ def save_access_token_to_json(access_token, account_id):
 
 
 def save_account_id(id):
-    # We can save the connected Account ID to our Database
     print("Connected account ID: ", id)
 
 
@@ -166,6 +163,11 @@ def get_payouts():
         payload_json = json.loads(payload)
         account_id = payload_json['account_id']
         access_token = check_for_account_id(account_id=account_id)
+        print(access_token)
+        if not access_token:
+            print("Redirecting/......")
+            return redirect("https://dashboard.stripe.com/test/dashboard")
+
         output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=access_token)
         output_df_json = output_df.to_json(orient='records')
         return _corsify_actual_response(jsonify(output_df_json))
