@@ -39,17 +39,7 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
             })
 
     }
-    const getPayoutsDetails = async () => {
-        const data = await fetch('http://localhost:5000/get_customers/', {
-            method: "GET",
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify({
-                account_id: userContext?.account.id
-            })
-        })
-    }
+
 
     getStatus();
     useEffect(() => {
