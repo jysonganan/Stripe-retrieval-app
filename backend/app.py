@@ -167,7 +167,8 @@ def get_payouts():
             return jsonify({"hasSignedIn": False})
         output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=access_token)
         output_df_json = output_df.to_json(orient='records')
-        return _corsify_actual_response(jsonify(output_df_json))
+        print("hasSignedIn")
+        return _corsify_actual_response(jsonify({"output_df_json": output_df_json, 'hasSignedIn': True}))
 
 
 @app.route('/download-report/', methods=["GET"])
