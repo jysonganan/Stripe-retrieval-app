@@ -1,4 +1,4 @@
-import {Box, ContextView, ListItem, List, Button, Badge, Banner, Link} from "@stripe/ui-extension-sdk/ui";
+import {Box, ContextView, ListItem, List, Button, Banner} from "@stripe/ui-extension-sdk/ui";
 import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
 import {useEffect, useState} from "react";
 import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
@@ -50,8 +50,6 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                 setHasSignedIn(data.hasSignedIn)
             })
     }, []);
-    console.log(hasSignedIn);
-    console.log(data)
 
     let created: never[] = []
     let descr: never[] = []
