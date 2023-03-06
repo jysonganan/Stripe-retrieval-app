@@ -54,6 +54,7 @@ def handle_oauth_redirect():
 
     # Send the authorization code to Stripe's API.
     code = request.args.get("code")
+    print(code)
     try:
         response = stripe.OAuth.token(
             grant_type="authorization_code", code=code, )
@@ -67,6 +68,8 @@ def handle_oauth_redirect():
         'account_id': connected_account_id,
         'access_token': access_token
     }
+    tokenData = json.dumps(tokenData)
+    print(tokenData)
     save_access_token_to_json(access_token=access_token, account_id=connected_account_id)
     secret_store = stripe.apps.Secret.create(
         name='My_API_KEY',
