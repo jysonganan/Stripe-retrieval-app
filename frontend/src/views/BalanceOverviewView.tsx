@@ -17,7 +17,7 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
-    const [hasSignedIn, setHasSignedIn] = useState(true)
+    const [hasSignedIn, setHasSignedIn] = useState(false)
 
     useEffect(() => {
         createOAuthState().then(({state, challenge}) => {
@@ -39,17 +39,19 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                 .then(data => setHasSignedIn(data.hasSignedIn))
 
         }
-        getStatus();
+        // getStatus();
         fetch('http://localhost:5000/get_payouts/', {
             method: 'POST',
             headers: {"Content-type": 'application/json'},
             body: JSON.stringify({account_id: userContext?.account.id})
         }).then(response => response.json())
             .then(data => {
-                setMyData(JSON.parse(data));
+                setMyData(JSON.parse(data.output_df_json));
+                setHasSignedIn(data.hasSignedIn)
             })
     }, []);
-
+    console.log(hasSignedIn);
+    console.log(data)
 
     let created: never[] = []
     let descr: never[] = []
