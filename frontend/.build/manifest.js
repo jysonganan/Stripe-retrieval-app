@@ -6,7 +6,7 @@ import BalanceOverviewView from '../src/views/BalanceOverviewView';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-03-06 14:25:26.248845364 +0530 IST m=+0.011780877'
+export const BUILD_TIME = '2023-03-07 21:53:20.407211781 +0530 IST m=+0.077460019'
 
 export {
 	

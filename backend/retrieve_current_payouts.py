@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import datetime
 
-api_key = ""
+api_key = "sk_test_51JD9NgCgQjBmqTNT1ZDWjguNPUabQOSfcUgDQVJKOHR6B8r81gqFkPjDyMdnYxuhvREJUPzxRLpOh35vgCvdPrFz006mQeR9PT"
 
 
 def retrieve_current_payouts(api_key, current_month='12', current_year='2021'):
@@ -42,6 +42,6 @@ def retrieve_current_payouts(api_key, current_month='12', current_year='2021'):
     return output_df
 
 
-# if __name__ == '__main__':
-#     res = retrieve_current_payouts(api_key=api_key)
-#     print(res)
+if __name__ == '__main__':
+    res = retrieve_current_payouts(api_key=api_key)
+    print(res)
