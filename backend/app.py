@@ -8,10 +8,11 @@ from flask import Flask, jsonify, redirect, request, session, make_response, sen
 import urllib
 import pandas as pd
 import retrieve_current_payouts
+import database_utils
 
 load_dotenv(find_dotenv())
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-stripe.api_version = os.getenv('STRIPE_API_VERSION', '2019-12-03')
+stripe.api_version = os.getenv('STRIPE_API_VERSION', '2022-11-15')
 
 static_dir = str(os.path.abspath(os.path.join(
     __file__, "..", os.getenv("STATIC_DIR"))))
@@ -69,8 +70,8 @@ def handle_oauth_redirect():
         'access_token': access_token
     }
     tokenData = json.dumps(tokenData)
-    print(tokenData)
-    save_access_token_to_json(access_token=access_token, account_id=connected_account_id)
+    print("[FLASK INFO]", tokenData)
+    database_utils.insert_to_db(data=tokenData)
     secret_store = stripe.apps.Secret.create(
         name='My_API_KEY',
         payload=tokenData,
@@ -78,8 +79,6 @@ def handle_oauth_redirect():
     )
     print("Secret Store API:", secret_store)
     save_account_id(connected_account_id)
-    # Setting Secret Store API
-
     return redirect("https://dashboard.stripe.com/test/dashboard")
 
 
@@ -96,13 +95,12 @@ def save_account_id(id):
 
 @app.route('/health-check', methods=["GET", "POST"])
 def verify_user():
-    args = request.headers
-    # Get the Signature and Payload Data from the Frontend
     signature = request.headers.get('stripe-signature')
     payload = request.data.decode('utf-8')
     payload_json = json.loads(payload)
     account_id = payload_json['account_id']
-    account_check = check_for_account_id(account_id)
+    user_data_access_token = database_utils.find_in_db(account_id=account_id)
+    # print("[DatabaseRead]: ", user_data_access_token)
     try:
         event = stripe.Webhook.construct_event(
             payload, signature, os.getenv('STRIPE_APP_SECRET')
@@ -116,13 +114,11 @@ def verify_user():
         return jsonify({'error': str(e)}, 400)
 
     response = requests.get('https://api.stripe.com/healthcheck')
-    res = {}
     result = response.reason
-    if account_check is not False:
+    if user_data_access_token is not False:
         hasSignedIn = True
     else:
         hasSignedIn = False
-    print(result)
     return jsonify({"result": result, 'hasSignedIn': hasSignedIn})
 
 
@@ -165,24 +161,42 @@ def get_payouts():
         payload = request.data.decode('utf-8')
         payload_json = json.loads(payload)
         account_id = payload_json['account_id']
-        access_token = check_for_account_id(account_id=account_id)
-        if not access_token:
+        user_access_token = database_utils.find_in_db(account_id=account_id)
+        if not user_access_token:
             return jsonify({"hasSignedIn": False})
-        output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=access_token)
+        output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=user_access_token)
         output_df_json = output_df.to_json(orient='records')
-        print("hasSignedIn")
         return _corsify_actual_response(jsonify({"output_df_json": output_df_json, 'hasSignedIn': True}))
 
 
 @app.route('/download-report/', methods=["GET"])
 def download_csv():
     account_id = request.args.get("account_id")
-    access_token = check_for_account_id(account_id=account_id)
+    user_access_token = database_utils.find_in_db(account_id=account_id)
     res = retrieve_current_payouts.retrieve_current_payouts(
-        api_key=access_token)
+        api_key=user_access_token)
     filename = os.path.join('UserData', f'{account_id}-PayoutData.csv')
     res.to_csv(filename, index=False)
     return send_file(filename, mimetype='text/csv', as_attachment=True)
+
+
+# De-Authorizing an User
+@app.route("/deauthorize_user/", methods=["POST"])
+def deauthorize_user():
+    if request.method == 'OPTIONS':
+        return _build_cors_preflight_response()
+
+    if request.method == "POST":
+        payload = request.data.decode('utf-8')
+        payload_json = json.loads(payload)
+        account_id = payload_json['account_id']
+        result = stripe.OAuth.deauthorize(
+            stripe_user_id=account_id,
+            client_id=os.getenv("STRIPE_CLIENT_ID")
+        )
+        print("[De-Authorize User: ]", result)
+
+        return jsonify(result)
 
 
 def _build_cors_preflight_response():

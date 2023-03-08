@@ -21,7 +21,7 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const {mode} = environment;
     const [authURL, setAuthURL] = useState('');
     const [stripeStatus, setStripeStatus] = useState<string>('down');
-    const [hasSignedIn, setHasSignedIn] = useState<boolean>();
+    const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
     const getStatus = async () => {
         const data = await fetch('http://localhost:5000/health-check', {
             method: "POST",
