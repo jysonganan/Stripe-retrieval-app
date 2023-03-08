@@ -21,6 +21,10 @@
       {
         "viewport": "stripe.dashboard.balance.overview",
         "component": "BalanceOverviewView"
+      },
+      {
+        "viewport": "settings",
+        "component": "AppSettings"
       }
     ],
     "actions": [],
