@@ -6,8 +6,8 @@ import pandas as pd
 from urllib.parse import urlparse, parse_qs, urlencode
 import urllib
 
-account_id = "acct_1MavwaSH4jjnFx7c"
-stripe.api_key = "sk_test_51MavwaSH4jjnFx7cPtFaSOCTvFPR1yTWydwANf1JQNu6u8O00n26tE7Dzd11wsDSpLzpeQ0sMyfZkSj7yyHKVSSV0087g5pNsL"
+account_id = ""
+stripe.api_key = ""
 
 
 # Getting Stripe Secret Store API LIst
@@ -84,19 +84,18 @@ stripe.api_key = "sk_test_51MavwaSH4jjnFx7cPtFaSOCTvFPR1yTWydwANf1JQNu6u8O00n26t
 # print(res)
 
 # Setting a Secret Key
-def create_store_key(account_id, access_token):
-    tokenData = {
-        'account_id': account_id,
-        'access_token': access_token
-    }
-    tokenData = json.dumps(tokenData)
-    secret_store = stripe.apps.Secret.create(
-        name='My_API_KEY',
-        payload=tokenData,
-        scope={'type': 'account'}
-    )
-    print("Secret Store Key: ", secret_store)
+# def create_store_key(account_id, access_token):
+#     tokenData = {
+#         'account_id': account_id,
+#         'access_token': access_token
+#     }
+#     tokenData = json.dumps(tokenData)
+#     secret_store = stripe.apps.Secret.create(
+#         name='My_API_KEY',
+#         payload=tokenData,
+#         scope={'type': 'account'}
+#     )
+#     print("Secret Store Key: ", secret_store)
 
 
-print(create_store_key(account_id="acct_1MiduvSBEX4sKyTK",
-                       access_token="sk_test_51MiduvSBEX4sKyTKOabd58THDpyBjIejAxM7B0EtM4PoohcgOlVEzDQJPpWB9gL5Y6lDQMS0SN0MM3cFHxKZJUJO00JbxyCiFa"))
+
