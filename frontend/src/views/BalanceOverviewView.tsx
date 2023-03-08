@@ -17,7 +17,7 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
-    const [hasSignedIn, setHasSignedIn] = useState(false)
+    const [hasSignedIn, setHasSignedIn] = useState(true)
 
     useEffect(() => {
         createOAuthState().then(({state, challenge}) => {

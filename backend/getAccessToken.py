@@ -6,8 +6,8 @@ import pandas as pd
 from urllib.parse import urlparse, parse_qs, urlencode
 import urllib
 
-account_id = "acct_1MavwaSH4jjnFx7c"
-stripe.api_key = "sk_test_51MavwaSH4jjnFx7cPtFaSOCTvFPR1yTWydwANf1JQNu6u8O00n26tE7Dzd11wsDSpLzpeQ0sMyfZkSj7yyHKVSSV0087g5pNsL"
+account_id = ""
+stripe.api_key = ""
 
 
 # Getting Stripe Secret Store API LIst
