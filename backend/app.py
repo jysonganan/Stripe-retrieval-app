@@ -195,7 +195,8 @@ def deauthorize_user():
             client_id=os.getenv("STRIPE_CLIENT_ID")
         )
         print("[De-Authorize User: ]", result)
-
+        # Deleting from MongoDB Database too
+        database_utils.remove_from_db(account_id=account_id)
         return jsonify(result)
 
 

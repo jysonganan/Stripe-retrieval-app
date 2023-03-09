@@ -5,7 +5,7 @@ import pymongo
 def connect_to_db():
     # Making the Connection to Database
     client = pymongo.MongoClient(
-        "mongodb+srv://jayateerthd:password@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
+        "mongodb+srv://username:password@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
 
     # Selecting a Database
     db = client["UserInfo"]
@@ -37,4 +37,13 @@ def find_in_db(account_id):
         return user_access_token
     else:
         return False
+
+
+def remove_from_db(account_id):
+    collection = connect_to_db()
+    obj_to_delete = collection.find_one({"account_id": account_id})
+    res = collection.delete_one(obj_to_delete)
+    print(res)
+
+    
 
