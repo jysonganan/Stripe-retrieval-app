@@ -5,7 +5,7 @@ import pymongo
 def connect_to_db():
     # Making the Connection to Database
     client = pymongo.MongoClient(
-        "mongodb+srv://username:password@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
+        "mongodb+srv://jayateerthd:dragonforce@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
 
     # Selecting a Database
     db = client["UserInfo"]
