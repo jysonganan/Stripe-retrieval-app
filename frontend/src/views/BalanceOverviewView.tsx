@@ -1,4 +1,4 @@
-import {Box, ContextView, ListItem, List, Button, Banner} from "@stripe/ui-extension-sdk/ui";
+import {Box, ContextView, ListItem, List, Button, Banner, FormFieldGroup, TextField} from "@stripe/ui-extension-sdk/ui";
 import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
 import {useEffect, useState} from "react";
 import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
@@ -18,7 +18,9 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState(true)
-
+    const [dateValue, setDateValue] = useState({
+        month: '', year: ''
+    });
     useEffect(() => {
         createOAuthState().then(({state, challenge}) => {
             setAuthURL(getAuthURL(state, challenge, mode));
@@ -49,6 +51,13 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                 setMyData(JSON.parse(data.output_df_json));
                 setHasSignedIn(data.hasSignedIn)
             })
+        
+        const handleInputChange = (event) => {
+            const {name, value} = event.target;
+            setDateValue({
+                ...dateValue, [name]: value
+            });
+        }
     }, []);
 
     let created: never[] = []
@@ -70,6 +79,26 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
 
     return (
         <ContextView title="User Details">
+                    <Box css={{
+            padding: 'medium',
+            color: 'primary',
+            borderRadius: 'large',
+
+        }}>
+            <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
+                <TextField type="number" value={dateValue.month} label="Month" placeholder="MM" hiddenElements={['label']} />
+                <TextField type="number" value={dateValue.year} label="Year" placeholder="YY" hiddenElements={['label']} />
+            </FormFieldGroup>
+            <Box css={{
+                stack: 'z',
+                alignX: 'center',
+                alignY: 'center',
+                margin: 'medium'
+            }}>
+                <Button type="primary">Get Data</Button>
+            </Box>
+
+        </Box>
             {hasSignedIn && <List>
                 <ListItem
                     value={net[0]}
@@ -152,4 +181,3 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
 };
 
 export default BalanceOverviewView;
-
