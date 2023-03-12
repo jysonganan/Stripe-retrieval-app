@@ -5,7 +5,7 @@ import json
 import pandas as pd
 from urllib.parse import urlparse, parse_qs, urlencode
 import urllib
-
+from cryptography.fernet import Fernet
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
@@ -100,3 +100,32 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 #     print("Secret Store Key: ", secret_store)
 
 
+# Encrypting Access Token
+
+# class AccessTokenEncryption:
+#     def __init__(self, key=None):
+#         if key is None:
+#             key = Fernet.generate_key()
+        
+#         self.fer_obj = Fernet(key)
+
+#     def encryption(self, token):
+#         encrypted_token = self.fer_obj.encrypt(token.encode())
+#         return encrypted_token
+    
+#     def decryption(self, encrypted_access_token):
+#         decrypted_access_token = self.fer_obj.decrypt(encrypted_access_token).decode()
+#         return decrypted_access_token
+            
+
+
+
+# if __name__ == '__main__':
+    
+#     tokenzier = AccessTokenEncryption()
+#     enc_token = tokenzier.encryption(token="")
+#     dec_token = tokenzier.decryption(encrypted_access_token=enc_token)
+
+
+#     print("Encrypted Token: ", type(enc_token))
+#     print("Decrypted Token: ", dec_token)
