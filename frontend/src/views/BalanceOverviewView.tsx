@@ -1,7 +1,7 @@
-import {Box, ContextView, ListItem, List, Button, Banner, FormFieldGroup, TextField} from "@stripe/ui-extension-sdk/ui";
-import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
-import {useEffect, useState} from "react";
-import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
+import { Box, ContextView, ListItem, List, Button, Banner, FormFieldGroup, TextField } from "@stripe/ui-extension-sdk/ui";
+import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
+import { useEffect, useState } from "react";
+import { createOAuthState } from "@stripe/ui-extension-sdk/oauth";
 import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
@@ -11,8 +11,10 @@ import * as React from "react";
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
     `http://localhost:5000/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
-const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
-    const {mode} = environment;
+const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue) => {
+    const maxLengthForMonth: number = 2
+    const maxLengthForYear: number = 4
+    const { mode } = environment;
     const downloadEndpoint = `http://localhost:5000/download-report/?account_id=${userContext?.account.id}`;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
@@ -22,7 +24,7 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
         month: '', year: ''
     });
     useEffect(() => {
-        createOAuthState().then(({state, challenge}) => {
+        createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
 
@@ -44,21 +46,39 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
         // getStatus();
         fetch('http://localhost:5000/get_payouts/', {
             method: 'POST',
-            headers: {"Content-type": 'application/json'},
-            body: JSON.stringify({account_id: userContext?.account.id})
+            headers: { "Content-type": 'application/json' },
+            body: JSON.stringify({ account_id: userContext?.account.id })
         }).then(response => response.json())
             .then(data => {
                 setMyData(JSON.parse(data.output_df_json));
                 setHasSignedIn(data.hasSignedIn)
             })
-        
-        const handleInputChange = (event) => {
-            const {name, value} = event.target;
-            setDateValue({
-                ...dateValue, [name]: value
-            });
-        }
+
     }, []);
+
+    // Handling DateForm Data
+    const InputChangeHandler = (event) => {
+        const { name, value } = event.target;
+        setDateValue((prevState) => ({
+            ...prevState, [name]: value
+        }));
+
+    };
+
+    const handleSubmit = async (event) => {
+        const formData = new FormData();
+        event.preventDefault();
+        
+        const response = await fetch('http://localhost:5000/get_payouts_by_date/', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({dateValue})
+        })
+        const responseData = await response.json();
+        console.log(responseData)  
+    }
 
     let created: never[] = []
     let descr: never[] = []
@@ -79,26 +99,26 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
 
     return (
         <ContextView title="User Details">
-                    <Box css={{
-            padding: 'medium',
-            color: 'primary',
-            borderRadius: 'large',
-
-        }}>
-            <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
-                <TextField type="number" value={dateValue.month} label="Month" placeholder="MM" hiddenElements={['label']} />
-                <TextField type="number" value={dateValue.year} label="Year" placeholder="YY" hiddenElements={['label']} />
-            </FormFieldGroup>
             <Box css={{
-                stack: 'z',
-                alignX: 'center',
-                alignY: 'center',
-                margin: 'medium'
-            }}>
-                <Button type="primary">Get Data</Button>
-            </Box>
+                padding: 'medium',
+                color: 'primary',
+                borderRadius: 'large',
 
-        </Box>
+            }}>
+                <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
+                    <TextField type="number" onChange={InputChangeHandler}  maxLength={maxLengthForMonth} label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
+                    <TextField type="number" onChange={InputChangeHandler}  maxLength={maxLengthForYear} label="Year" name="year" placeholder="YY" hiddenElements={['label']} />
+                </FormFieldGroup>
+                <Box css={{
+                    stack: 'z',
+                    alignX: 'center',
+                    alignY: 'center',
+                    margin: 'medium'
+                }}>
+                    <Button type="primary">Get Data</Button>
+                </Box>
+
+            </Box>
             {hasSignedIn && <List>
                 <ListItem
                     value={net[0]}
@@ -156,10 +176,10 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                 />
             </List>}
 
-            <Box css={{stack: 'y', gap: 'large', margin: 'large'}}>
+            <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
                 {hasSignedIn &&
-                    <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}}
-                            target="_blank">Download
+                    <Button href={downloadEndpoint} type="primary" css={{ width: 'fill', alignX: 'center' }}
+                        target="_blank">Download
                         CSV</Button>
                 }
 
