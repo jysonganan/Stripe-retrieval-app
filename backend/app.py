@@ -8,7 +8,9 @@ from flask import Flask, jsonify, redirect, request, session, make_response, sen
 import urllib
 import pandas as pd
 import retrieve_current_payouts
-import database_utils
+from database_utils import DatabaseUtils
+
+database_utils = DatabaseUtils()
 
 load_dotenv(find_dotenv())
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
@@ -100,7 +102,6 @@ def verify_user():
     payload_json = json.loads(payload)
     account_id = payload_json['account_id']
     user_data_access_token = database_utils.find_in_db(account_id=account_id)
-    # print("[DatabaseRead]: ", user_data_access_token)
     try:
         event = stripe.Webhook.construct_event(
             payload, signature, os.getenv('STRIPE_APP_SECRET')
