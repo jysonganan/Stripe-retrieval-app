@@ -19,9 +19,8 @@ class DatabaseUtils():
                 "mongodb+srv://jayateerthd:password@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
             db = client["UserInfo"]
             collection = db["UserData"]
-
+        self.salt = b"tyUQW@*A"
         self.key = Fernet.generate_key()
-
         self.fer_obj = Fernet(key=self.key)
         self.client = client
         self.collection = collection
@@ -30,8 +29,7 @@ class DatabaseUtils():
     def insert_to_db(self, data):
         data = json.loads(data)
         token = data["access_token"]
-        encrypted_token = self.encrypter(token=token)
-        print("EncryptedToken:", encrypted_token)
+        encrypted_token = self.__encrypter(token=token)
         data["access_token"] = encrypted_token
         inserted_data = self.collection.insert_one(data)
         return inserted_data
@@ -45,9 +43,8 @@ class DatabaseUtils():
     def find_in_db(self, account_id):
         user_data = self.collection.find_one({"account_id": account_id})
         if user_data is not None:
-            user_access_token = user_data["access_token"]
-            user_access_token = self.decrypter(user_access_token)
-            print(user_access_token)
+            user_token = user_data["access_token"]
+            user_access_token = self.__decrypter(data=user_token)
             return user_access_token
 
         else:
@@ -62,17 +59,15 @@ class DatabaseUtils():
         else:
             return False
 
-    def encrypter(self, token):
+    # Private Methods
+
+    def __encrypter(self, token):
         encrypted_token = self.fer_obj.encrypt(token.encode())
+        encrypted_token = encrypted_token + self.salt + self.key
         return encrypted_token
 
-    def decrypter(self, encr_token):
-        decrypted_token = self.fer_obj.decrypt(encr_token).decode()
+    def __decrypter(self, data):
+        encrypt_token, encrypt_key = data.split(self.salt)
+        decrypted_token = Fernet(encrypt_key).decrypt(encrypt_token).decode()
         return decrypted_token
-
-
-if __name__ == '__main__':
-    inst = DatabaseUtils()
-    # inst.remove_from_db(given_data_jsn["account_id"])
-    # inst.insert_to_db(given_data)
-    inst.find_in_db(given_data_jsn["account_id"])
+    

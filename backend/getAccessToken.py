@@ -106,11 +106,14 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 #     def __init__(self, key=None):
 #         if key is None:
 #             key = Fernet.generate_key()
-        
-#         self.fer_obj = Fernet(key)
+#         self.key = key 
+#         self.fer_obj = Fernet(self.key)
+#         print("Key: ", self.key)
 
+#         self.salt = b"tyUQW@*A"
 #     def encryption(self, token):
 #         encrypted_token = self.fer_obj.encrypt(token.encode())
+#         encrypted_token = encrypted_token + self.salt + self.key
 #         return encrypted_token
     
 #     def decryption(self, encrypted_access_token):
@@ -119,13 +122,4 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
             
 
 
-
-# if __name__ == '__main__':
     
-#     tokenzier = AccessTokenEncryption()
-#     enc_token = tokenzier.encryption(token="")
-#     dec_token = tokenzier.decryption(encrypted_access_token=enc_token)
-
-
-#     print("Encrypted Token: ", type(enc_token))
-#     print("Decrypted Token: ", dec_token)
