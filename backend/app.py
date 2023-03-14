@@ -24,6 +24,10 @@ app.secret_key = b'_5#y2L"JF878z\n\xec]/'
 
 USER_INFO_FILE = os.path.join("UserData/UserInfo.json")
 
+@app.route("/home")
+def home():
+    return "HelloFlask"
+
 
 @app.route("/get-oauth-link/", methods=["GET", 'POST'])
 def construct_oauth_link():
