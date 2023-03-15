@@ -6,7 +6,6 @@ import stripe
 from dotenv import load_dotenv, find_dotenv
 from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 import urllib
-import pandas as pd
 import retrieve_current_payouts
 
 load_dotenv(find_dotenv())
