@@ -9,12 +9,12 @@ import fetchStripeSignature from '@stripe/ui-extension-sdk/signature';
 const {useState, useEffect} = React;
 
 
-const BACKEND_URL = 'http://localhost:5000/validateuser/';
+const BACKEND_URL = 'https://stripe-backend-k7b4-1x3cylwcr-jayateerthdambal.vercel.app';
 
 const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/${mode === 'test' ? 'test/' : 'live/'}apps-oauth/com.example.oauth-example`;
 
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
-    `http://localhost:5000/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
+    BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
 
 const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
@@ -23,7 +23,7 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const [stripeStatus, setStripeStatus] = useState<string>('down');
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
     const getStatus = async () => {
-        const data = await fetch('http://localhost:5000/health-check', {
+        const data = await fetch('https://stripe-backend-k7b4-1x3cylwcr-jayateerthdambal.vercel.app/health-check', {
             method: "POST",
             headers: {
                 'stripe-signature': await fetchStripeSignature(),

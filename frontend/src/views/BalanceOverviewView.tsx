@@ -6,16 +6,20 @@ import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
 
-// Download Endpoint
+// BACKEND URL
+const BACKEND_URL = 'https://stripe-backend-k7b4-1x3cylwcr-jayateerthdambal.vercel.app';
+
+
+
 
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
-    `http://localhost:5000/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
+    BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
 const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue) => {
     const maxLengthForMonth: number = 2
     const maxLengthForYear: number = 4
     const { mode } = environment;
-    const downloadEndpoint = `http://localhost:5000/download-report/?account_id=${userContext?.account.id}`;
+    const downloadEndpoint = BACKEND_URL + `/download-report/?account_id=${userContext?.account.id}`;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
@@ -29,7 +33,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         });
 
         const getStatus = async () => {
-            const data = await fetch('http://localhost:5000/health-check', {
+            const data = await fetch(BACKEND_URL + '/health-check', {
                 method: "POST",
                 headers: {
                     'stripe-signature': await fetchStripeSignature(),
@@ -44,7 +48,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
 
         }
         // getStatus();
-        fetch('http://localhost:5000/get_payouts/', {
+        fetch(BACKEND_URL +'/get_payouts/', {
             method: 'POST',
             headers: { "Content-type": 'application/json' },
             body: JSON.stringify({ account_id: userContext?.account.id })
@@ -69,7 +73,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         const formData = new FormData();
         event.preventDefault();
         
-        const response = await fetch('http://localhost:5000/get_payouts_by_date/', {
+        const response = await fetch(BACKEND_URL + '/get_payouts_by_date/', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
