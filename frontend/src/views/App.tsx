@@ -23,11 +23,13 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const [stripeStatus, setStripeStatus] = useState<string>('down');
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
     const getStatus = async () => {
-        const data = await fetch('https://stripe-backend-k7b4-1x3cylwcr-jayateerthdambal.vercel.app/health-check', {
+        const data = await fetch('https://stripe-backend-k7b4.vercel.app/health-check', {
             method: "POST",
             headers: {
+                'Content-Security-Policy': "default-src 'self'; connect-src https://stripe-backend-k7b4.vercel.app https://dashboard.stripe.com",
                 'stripe-signature': await fetchStripeSignature(),
-                'Content-type': 'application/json'
+                'Content-type': 'application/json',
+
             },
             body: JSON.stringify({
                 user_id: userContext?.id,
