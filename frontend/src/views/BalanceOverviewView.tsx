@@ -20,9 +20,9 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState(true)
-    const [dateValue, setDateValue] = useState({
-        month: '', year: ''
-    });
+    const [monthValue, setMonthValue] = useState('');
+    const [yearValue, setYearValue] = useState('');
+    const [gotPayoutData, setPayoutData] = useState<boolean>(false)
     useEffect(() => {
         createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
@@ -43,41 +43,36 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 .then(data => setHasSignedIn(data.hasSignedIn))
 
         }
-        // getStatus();
-        fetch('http://localhost:5000/get_payouts/', {
-            method: 'POST',
-            headers: { "Content-type": 'application/json' },
-            body: JSON.stringify({ account_id: userContext?.account.id })
-        }).then(response => response.json())
-            .then(data => {
-                setMyData(JSON.parse(data.output_df_json));
-                setHasSignedIn(data.hasSignedIn)
-            })
 
     }, []);
 
     // Handling DateForm Data
-    const InputChangeHandler = (event) => {
-        const { name, value } = event.target;
-        setDateValue((prevState) => ({
-            ...prevState, [name]: value
-        }));
-
-    };
+    const monthValueHandler = (event) => {
+        setMonthValue(event.target.value);
+    }
+    const yearValueHandler = (event) => {
+        setYearValue(event.target.value);
+    }
 
     const handleSubmit = async (event) => {
-        const formData = new FormData();
-        event.preventDefault();
-        
-        const response = await fetch('http://localhost:5000/get_payouts_by_date/', {
+        // event.preventDefault();
+
+        fetch('http://localhost:5000/get_payouts/', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({dateValue})
+            body: JSON.stringify({
+                month: monthValue,
+                year: yearValue,
+                account_id: userContext?.account.id
+            })
+        }).then(response => response.json())
+        .then(data => {
+            setMyData(JSON.parse(data.output_df_json));
+            setHasSignedIn(data.hasSignedIn)
         })
-        const responseData = await response.json();
-        console.log(responseData)  
+
     }
 
     let created: never[] = []
@@ -106,8 +101,8 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
 
             }}>
                 <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
-                    <TextField type="number" onChange={InputChangeHandler}  maxLength={maxLengthForMonth} label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
-                    <TextField type="number" onChange={InputChangeHandler}  maxLength={maxLengthForYear} label="Year" name="year" placeholder="YY" hiddenElements={['label']} />
+                    <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth} label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
+                    <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year" name="year" placeholder="YY" hiddenElements={['label']} />
                 </FormFieldGroup>
                 <Box css={{
                     stack: 'z',
@@ -115,7 +110,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                     alignY: 'center',
                     margin: 'medium'
                 }}>
-                    <Button type="primary">Get Data</Button>
+                    <Button type="primary" onPress={handleSubmit}>Get Data</Button>
                 </Box>
 
             </Box>

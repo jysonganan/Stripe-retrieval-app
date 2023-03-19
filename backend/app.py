@@ -158,22 +158,25 @@ def get_customers_list():
 
 
 # Getting Payouts in JSON Object
-@app.route('/get_payouts/', methods=["POST"])
-def get_payouts():
-    if request.method == 'OPTIONS':
+@app.route("/get_payouts/", methods=["POST"])
+def get_payouts_by_date():
+    if request.method == "OPTIONS":
         return _build_cors_preflight_response()
-
+    
     if request.method == "POST":
-        payload = request.data.decode('utf-8')
-        payload_json = json.loads(payload)
-        account_id = payload_json['account_id']
+        values = json.loads(request.data.decode("utf-8"))
+        month = values["month"]
+        year = values["year"]
+        account_id = values["account_id"]
         user_access_token = database_utils.find_in_db(account_id=account_id)
         if not user_access_token:
             return jsonify({"hasSignedIn": False})
-        output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=user_access_token)
+        output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=user_access_token,
+                                                                      current_month=month,
+                                                                        current_year=year)
         output_df_json = output_df.to_json(orient='records')
         return _corsify_actual_response(jsonify({"output_df_json": output_df_json, 'hasSignedIn': True}))
-
+    
 
 @app.route('/download-report/', methods=["GET"])
 def download_csv():

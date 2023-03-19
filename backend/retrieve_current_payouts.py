@@ -6,7 +6,7 @@ import datetime
 api_key = ""
 
 
-def retrieve_current_payouts(api_key, current_month='12', current_year='2021'):
+def retrieve_current_payouts(api_key, current_month, current_year):
     stripe.api_key = api_key
     arrival_dates = [
         datetime.datetime.fromtimestamp(stripe.Payout.list(limit=10)['data'][i]['arrival_date']).strftime("%m/%d/%Y")

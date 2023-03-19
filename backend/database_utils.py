@@ -16,7 +16,7 @@ class DatabaseUtils():
     def __init__(self, client=None):
         if client is None:
             client = pymongo.MongoClient(
-                "mongodb+srv://jayateerthd:password@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
+                "mongodb+srv://jayateerthd:dragonforce@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
             db = client["UserInfo"]
             collection = db["UserData"]
         self.salt = b"tyUQW@*A"
