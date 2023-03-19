@@ -175,15 +175,19 @@ def get_payouts_by_date():
                                                                       current_month=month,
                                                                         current_year=year)
         output_df_json = output_df.to_json(orient='records')
-        return _corsify_actual_response(jsonify({"output_df_json": output_df_json, 'hasSignedIn': True}))
+        if output_df_json is not None:
+            hasData = True
+        return _corsify_actual_response(jsonify({"output_df_json": output_df_json, 'hasSignedIn': True, 'hasData': hasData}))
     
 
 @app.route('/download-report/', methods=["GET"])
 def download_csv():
     account_id = request.args.get("account_id")
+    current_month = request.args.get("current_month")
+    current_year = request.args.get("current_year")
     user_access_token = database_utils.find_in_db(account_id=account_id)
     res = retrieve_current_payouts.retrieve_current_payouts(
-        api_key=user_access_token)
+        api_key=user_access_token, current_month=current_month, current_year=current_year)
     filename = os.path.join('UserData', f'{account_id}-PayoutData.csv')
     res.to_csv(filename, index=False)
     return send_file(filename, mimetype='text/csv', as_attachment=True)
@@ -196,8 +200,7 @@ def deauthorize_user():
         return _build_cors_preflight_response()
 
     if request.method == "POST":
-        payload = request.data.decode('utf-8')
-        payload_json = json.loads(payload)
+        payload_json = json.loads(request.data.decode('utf-8'))
         account_id = payload_json['account_id']
         result = stripe.OAuth.deauthorize(
             stripe_user_id=account_id,

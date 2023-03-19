@@ -15,7 +15,6 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const maxLengthForMonth: number = 2
     const maxLengthForYear: number = 4
     const { mode } = environment;
-    const downloadEndpoint = `http://localhost:5000/download-report/?account_id=${userContext?.account.id}`;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
@@ -23,6 +22,8 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const [monthValue, setMonthValue] = useState('');
     const [yearValue, setYearValue] = useState('');
     const [gotPayoutData, setPayoutData] = useState<boolean>(false)
+    const downloadEndpoint = `http://localhost:5000/download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}`;
+
     useEffect(() => {
         createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
@@ -56,8 +57,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
 
     const handleSubmit = async (event) => {
         // event.preventDefault();
-
-        fetch('http://localhost:5000/get_payouts/', {
+        const response = await fetch('http://localhost:5000/get_payouts/', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -67,12 +67,14 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 year: yearValue,
                 account_id: userContext?.account.id
             })
-        }).then(response => response.json())
-        .then(data => {
-            setMyData(JSON.parse(data.output_df_json));
-            setHasSignedIn(data.hasSignedIn)
         })
-
+        if(!response.ok){
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json()
+        setMyData(JSON.parse(data.output_df_json));
+        setHasSignedIn(data.hasSignedIn);
+        setPayoutData(data.hasData);
     }
 
     let created: never[] = []
@@ -114,7 +116,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 </Box>
 
             </Box>
-            {hasSignedIn && <List>
+            {gotPayoutData && <List>
                 <ListItem
                     value={net[0]}
                     id="2"
@@ -172,7 +174,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             </List>}
 
             <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
-                {hasSignedIn &&
+                {gotPayoutData &&
                     <Button href={downloadEndpoint} type="primary" css={{ width: 'fill', alignX: 'center' }}
                         target="_blank">Download
                         CSV</Button>
