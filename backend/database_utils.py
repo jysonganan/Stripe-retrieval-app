@@ -40,8 +40,8 @@ class DatabaseUtils():
         for user_data in cur:
             print("UserAccountID: ", user_data["account_id"])
 
-    def find_in_db(self, account_id):
-        user_data = self.collection.find_one({"account_id": account_id})
+    def find_in_db(self, account_id, mode):
+        user_data = self.collection.find_one({"account_id": account_id, 'mode': mode})
         if user_data is not None:
             user_token = user_data["access_token"]
             user_access_token = self.__decrypter(data=user_token)
@@ -70,4 +70,9 @@ class DatabaseUtils():
         encrypt_token, encrypt_key = data.split(self.salt)
         decrypted_token = Fernet(encrypt_key).decrypt(encrypt_token).decode()
         return decrypted_token
+
+
+# if __name__ == '__main__':
+#     inst = DatabaseUtils()
+
     

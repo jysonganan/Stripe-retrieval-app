@@ -35,19 +35,19 @@ def home_page():
 
 @app.route("/get-oauth-link/", methods=["GET", 'POST'])
 def construct_oauth_link():
+    global mode_oauth
     get_data = request.args.to_dict()
-
     state = get_data['state']
-    mode = get_data['mode']
-    print(mode)
+    mode_oauth = get_data['mode']
+    print("mode_oauth: ", mode_oauth)
     session['state'] = state
-    session['mode'] = mode
+    session['mode'] = mode_oauth
     args = {
         "client_id": os.getenv('STRIPE_CLIENT_ID'),
         "state": state,
         "scope": "read_write",
         "response_type": "code",
-        "mode": mode
+        "mode": mode_oauth
     }
     url = "https://connect.stripe.com/oauth/authorize?{}".format(
         urllib.parse.urlencode(args))
@@ -62,19 +62,29 @@ def handle_oauth_redirect():
 
     # Send the authorization code to Stripe's API.
     code = request.args.get("code")
-    print(code)
+    mode = mode_oauth
+    print(request.args)
     try:
-        response = stripe.OAuth.token(
-            grant_type="authorization_code", code=code, )
+        if mode == 'live':
+            stripe.api_key = os.getenv("STRIPE_LIVE_SECRET_KEY")
+            response = stripe.OAuth.token(
+                grant_type="authorization_code", code=code, )
+        else:
+            response = stripe.OAuth.token(
+                grant_type="authorization_code", code=code, )
+            
     except stripe.oauth_error.OAuthError as e:
         return json.dumps({"error": "Invalid authorization code: " + code}), 400
+    
     except Exception as e:
         return json.dumps({"error": "An unknown error occurred."}), 500
+    
     access_token = response['access_token']
     connected_account_id = response["stripe_user_id"]
     tokenData = {
         'account_id': connected_account_id,
-        'access_token': access_token
+        'access_token': access_token,
+        'mode': mode
     }
     tokenData = json.dumps(tokenData)
     print("[FLASK INFO]", tokenData)
@@ -85,19 +95,8 @@ def handle_oauth_redirect():
         scope={'type': 'account'}
     )
     print("Secret Store API:", secret_store)
-    save_account_id(connected_account_id)
     return redirect("https://dashboard.stripe.com/test/dashboard")
 
-
-def save_access_token_to_json(access_token, account_id):
-    df = pd.read_json(os.path.join("UserData/UserInfo.json"))
-    data = {'account_id': account_id, 'access_token': access_token}
-    df = df.append(data, ignore_index=True)
-    df.to_json(USER_INFO_FILE, orient="records")
-
-
-def save_account_id(id):
-    print("Connected account ID: ", id)
 
 
 @app.route('/health-check', methods=["GET", "POST"])
@@ -106,12 +105,18 @@ def verify_user():
     payload = request.data.decode('utf-8')
     payload_json = json.loads(payload)
     account_id = payload_json['account_id']
-    user_data_access_token = database_utils.find_in_db(account_id=account_id)
+    mode = payload_json["mode"]
+    user_data_access_token = database_utils.find_in_db(account_id=account_id, mode=mode)
     try:
-        event = stripe.Webhook.construct_event(
-            payload, signature, os.getenv('STRIPE_APP_SECRET')
-        )
-
+        if mode == 'live':
+            stripe.api_key = os.getenv("STRIPE_LIVE_SECRET_KEY")
+            event = stripe.Webhook.construct_event(
+                payload, signature, os.getenv('STRIPE_APP_SECRET')
+            )
+        else:
+            event = stripe.Webhook.construct_event(
+                payload, signature, os.getenv('STRIPE_APP_SECRET')    
+            )
     except ValueError as e:
         return jsonify({'error': str(e)}, 400)
 
@@ -128,14 +133,7 @@ def verify_user():
     return jsonify({"result": result, 'hasSignedIn': hasSignedIn})
 
 
-def check_for_account_id(account_id):
-    df = pd.read_json(os.path.join("UserData/UserInfo.json"))
-    if account_id in df['account_id'].values:
-        user_row = df.loc[df['account_id'] == account_id, ['account_id', 'access_token']]
-        user_access_token = user_row['access_token'].values[0]
-        return user_access_token
-    else:
-        return False
+
 
 
 @app.route('/get_customers/', methods=["POST"])
@@ -168,7 +166,9 @@ def get_payouts_by_date():
         month = values["month"]
         year = values["year"]
         account_id = values["account_id"]
-        user_access_token = database_utils.find_in_db(account_id=account_id)
+        mode = values["mode"]
+        user_access_token = database_utils.find_in_db(account_id=account_id, mode=mode)
+        print(user_access_token)
         if not user_access_token:
             return jsonify({"hasSignedIn": False})
         output_df = retrieve_current_payouts.retrieve_current_payouts(api_key=user_access_token,
@@ -196,6 +196,7 @@ def download_csv():
 # De-Authorizing an User
 @app.route("/deauthorize_user/", methods=["POST"])
 def deauthorize_user():
+    procCompleted = False
     if request.method == 'OPTIONS':
         return _build_cors_preflight_response()
 
@@ -207,9 +208,9 @@ def deauthorize_user():
             client_id=os.getenv("STRIPE_CLIENT_ID")
         )
         print("[De-Authorize User: ]", result)
-        # Deleting from MongoDB Database too
         database_utils.remove_from_db(account_id=account_id)
-        return jsonify(result)
+        procCompleted = True
+        return jsonify({"result": procCompleted})
 
 
 

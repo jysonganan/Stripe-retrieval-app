@@ -31,7 +31,8 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
             },
             body: JSON.stringify({
                 user_id: userContext?.id,
-                account_id: userContext?.account.id
+                account_id: userContext?.account.id,
+                mode: mode
             })
         }).then(response => response.json())
             .then(data => {

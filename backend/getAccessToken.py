@@ -78,12 +78,12 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 # print(fetch_access_token("acct_1JD9NgCgQjBmqTNT"))
 
 # 8. Deauthorize a Connected Account
-# res = stripe.OAuth.deauthorize(
-#     stripe_user_id="acct_1MjhJiSAv0t2qRwW",
-#     client_id="ca_NMVdZWTZSaRhb4nrYRxpPwJ3un4nMSqI"
-# )
-#
-# print(res)
+res = stripe.OAuth.deauthorize(
+    stripe_user_id="acct_1JD9NgCgQjBmqTNT",
+    client_id="ca_NMVdZWTZSaRhb4nrYRxpPwJ3un4nMSqI"
+)
+
+print(res)
 
 # Setting a Secret Key
 # def create_store_key(account_id, access_token):

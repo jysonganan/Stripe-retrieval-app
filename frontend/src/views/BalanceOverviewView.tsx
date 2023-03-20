@@ -38,6 +38,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 },
                 body: JSON.stringify({
                     user_id: userContext?.id,
+                    mode: mode,
                     account_id: userContext?.account.id
                 })
             }).then(response => response.json())
@@ -65,7 +66,8 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             body: JSON.stringify({
                 month: monthValue,
                 year: yearValue,
-                account_id: userContext?.account.id
+                account_id: userContext?.account.id,
+                mode: mode
             })
         })
         if(!response.ok){
