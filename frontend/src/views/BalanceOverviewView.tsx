@@ -7,7 +7,7 @@ import * as React from "react";
 
 
 // BACKEND URL
-const BACKEND_URL = 'https://stripe-backend-k7b4-1x3cylwcr-jayateerthdambal.vercel.app';
+const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app';
 
 
 
@@ -50,7 +50,9 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         // getStatus();
         fetch(BACKEND_URL +'/get_payouts/', {
             method: 'POST',
-            headers: { "Content-type": 'application/json' },
+            headers: { "Content-type": 'application/json',
+            'Content-Security-Policy': "default-src 'self'; connect-src  https://stripe-backend-k7b4.vercel.app dashboard.stripe.com",
+        },
             body: JSON.stringify({ account_id: userContext?.account.id })
         }).then(response => response.json())
             .then(data => {
