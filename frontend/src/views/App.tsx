@@ -26,7 +26,7 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
         const data = await fetch('https://stripe-backend-k7b4.vercel.app/health-check', {
             method: "POST",
             headers: {
-                'Content-Security-Policy': "default-src 'self'; connect-src https://stripe-backend-k7b4.vercel.app https://dashboard.stripe.com",
+                'Content-Security-Policy': "default-src 'self'; connect-src 'self' https://stripe-backend-k7b4.vercel.app/health-check",
                 'stripe-signature': await fetchStripeSignature(),
                 'Content-type': 'application/json',
 
