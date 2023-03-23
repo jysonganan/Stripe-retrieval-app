@@ -9,7 +9,7 @@ import fetchStripeSignature from '@stripe/ui-extension-sdk/signature';
 const {useState, useEffect} = React;
 
 
-const BACKEND_URL = 'https://stripe-backend-k7b4-1x3cylwcr-jayateerthdambal.vercel.app';
+const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 
 const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/${mode === 'test' ? 'test/' : 'live/'}apps-oauth/com.example.oauth-example`;
 
@@ -23,10 +23,9 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const [stripeStatus, setStripeStatus] = useState<string>('down');
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
     const getStatus = async () => {
-        const data = await fetch('https://stripe-backend-k7b4.vercel.app/health-check', {
+        const data = await fetch(BACKEND_URL + 'health-check/', {
             method: "POST",
             headers: {
-                'Content-Security-Policy': "default-src 'self'; connect-src 'self' https://stripe-backend-k7b4.vercel.app/health-check",
                 'stripe-signature': await fetchStripeSignature(),
                 'Content-type': 'application/json',
 

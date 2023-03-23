@@ -27,13 +27,12 @@
         "component": "AppSettings"
       }
     ],
-    "actions": [],
     "content_security_policy": {
-      "connect-src": null,
+      "connect-src": [
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
+      ],
       "image-src": null,
-      "purpose": ""
+      "purpose": "Send data to example service"
     }
-  },
-  "post_install_action": null,
-  "constants": null
+  }
 }
