@@ -8,7 +8,7 @@ import AppSettings from '../src/views/AppSettings';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-03-22 10:02:55.814574819 +0530 IST m=+0.012427816'
+export const BUILD_TIME = '2023-03-23 23:31:14.155449057 +0530 IST m=+0.011721911'
 
 export {
 	
@@ -48,13 +48,12 @@ export default {
         "component": "AppSettings"
       }
     ],
-    "actions": [],
     "content_security_policy": {
-      "connect-src": null,
+      "connect-src": [
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
+      ],
       "image-src": null,
-      "purpose": ""
+      "purpose": "Send data to example service"
     }
-  },
-  "post_install_action": null,
-  "constants": null
+  }
 }
