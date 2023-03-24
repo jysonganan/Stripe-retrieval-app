@@ -1,5 +1,4 @@
 import {ContextView, Button, Box, Badge, Banner} from '@stripe/ui-extension-sdk/ui';
-import {showToast} from '@stripe/ui-extension-sdk/utils';
 import * as React from 'react';
 import {createOAuthState} from '@stripe/ui-extension-sdk/oauth';
 import type {ExtensionContextValue} from '@stripe/ui-extension-sdk/context';

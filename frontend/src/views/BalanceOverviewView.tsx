@@ -6,84 +6,81 @@ import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
 
-// BACKEND URL
-const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app';
-
-
-
+const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
-    BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
+    `${BACKEND_URL}get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
 const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue) => {
     const maxLengthForMonth: number = 2
     const maxLengthForYear: number = 4
     const { mode } = environment;
-    const downloadEndpoint = BACKEND_URL + `/download-report/?account_id=${userContext?.account.id}`;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState(true)
-    const [dateValue, setDateValue] = useState({
-        month: '', year: ''
-    });
+    const [monthValue, setMonthValue] = useState('');
+    const [yearValue, setYearValue] = useState('');
+    const [gotPayoutData, setPayoutData] = useState<boolean>(false)
+    const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}`;
+
+
+    const getStatus = async () => {
+        const data = await fetch(BACKEND_URL + 'health-check/', {
+            method: "POST",
+            headers: {
+                'stripe-signature': await fetchStripeSignature(),
+                'Content-type': 'application/json',
+
+            },
+            body: JSON.stringify({
+                user_id: userContext?.id,
+                account_id: userContext?.account.id
+            })
+        }).then(response => response.json())
+            .then(data => {
+                setHasSignedIn(data.hasSignedIn);
+
+            })
+    }
+
+    getStatus();
     useEffect(() => {
         createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
-
-        const getStatus = async () => {
-            const data = await fetch(BACKEND_URL + '/health-check', {
-                method: "POST",
-                headers: {
-                    'stripe-signature': await fetchStripeSignature(),
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user_id: userContext?.id,
-                    account_id: userContext?.account.id
-                })
-            }).then(response => response.json())
-                .then(data => setHasSignedIn(data.hasSignedIn))
-
-        }
-        // getStatus();
-        fetch(BACKEND_URL +'/get_payouts/', {
-            method: 'POST',
-            headers: { "Content-type": 'application/json',
-            'Content-Security-Policy': "default-src 'self'; connect-src  https://stripe-backend-k7b4.vercel.app dashboard.stripe.com",
-        },
-            body: JSON.stringify({ account_id: userContext?.account.id })
-        }).then(response => response.json())
-            .then(data => {
-                setMyData(JSON.parse(data.output_df_json));
-                setHasSignedIn(data.hasSignedIn)
-            })
-
     }, []);
 
-    // Handling DateForm Data
-    const InputChangeHandler = (event) => {
-        const { name, value } = event.target;
-        setDateValue((prevState) => ({
-            ...prevState, [name]: value
-        }));
 
-    };
+    // Handling DateForm Data
+    const monthValueHandler = (event) => {
+        setMonthValue(event.target.value);
+    }
+    const yearValueHandler = (event) => {
+        setYearValue(event.target.value);
+    }
 
     const handleSubmit = async (event) => {
-        const formData = new FormData();
-        event.preventDefault();
-        
-        const response = await fetch(BACKEND_URL + '/get_payouts_by_date/', {
+        // event.preventDefault();
+        const response = await fetch(BACKEND_URL + 'get_payouts/', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({dateValue})
+            body: JSON.stringify({
+                month: monthValue,
+                year: yearValue,
+                account_id: userContext?.account.id,
+                mode: mode
+            })
         })
-        const responseData = await response.json();
-        console.log(responseData)  
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json()
+        setMyData(JSON.parse(data.output_df_json));
+        setHasSignedIn(data.hasSignedIn);
+        setPayoutData(data.hasData);
     }
 
     let created: never[] = []
@@ -105,27 +102,29 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
 
     return (
         <ContextView title="User Details">
-            <Box css={{
-                padding: 'medium',
-                color: 'primary',
-                borderRadius: 'large',
-
-            }}>
-                <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
-                    <TextField type="number" onChange={InputChangeHandler}  maxLength={maxLengthForMonth} label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
-                    <TextField type="number" onChange={InputChangeHandler}  maxLength={maxLengthForYear} label="Year" name="year" placeholder="YY" hiddenElements={['label']} />
-                </FormFieldGroup>
+            {hasSignedIn &&
                 <Box css={{
-                    stack: 'z',
-                    alignX: 'center',
-                    alignY: 'center',
-                    margin: 'medium'
-                }}>
-                    <Button type="primary">Get Data</Button>
-                </Box>
+                    padding: 'medium',
+                    color: 'primary',
+                    borderRadius: 'large',
 
-            </Box>
-            {hasSignedIn && <List>
+                }}>
+                    <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
+                        <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth} label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
+                        <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year" name="year" placeholder="YY" hiddenElements={['label']} />
+                    </FormFieldGroup>
+                    <Box css={{
+                        stack: 'z',
+                        alignX: 'center',
+                        alignY: 'center',
+                        margin: 'medium'
+                    }}>
+                        <Button type="primary" onPress={handleSubmit}>Get Data</Button>
+                    </Box>
+
+                </Box>
+            }
+            {gotPayoutData && hasSignedIn && <List>
                 <ListItem
                     value={net[0]}
                     id="2"
@@ -183,7 +182,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             </List>}
 
             <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
-                {hasSignedIn &&
+                {gotPayoutData &&
                     <Button href={downloadEndpoint} type="primary" css={{ width: 'fill', alignX: 'center' }}
                         target="_blank">Download
                         CSV</Button>

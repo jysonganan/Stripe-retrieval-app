@@ -2,7 +2,6 @@ import {
     Box,
     Button,
     Banner,
-    Inline,
     SettingsView,
 } from "@stripe/ui-extension-sdk/ui";
 import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";

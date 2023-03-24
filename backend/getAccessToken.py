@@ -8,10 +8,6 @@ import urllib
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv, find_dotenv
 
-load_dotenv(find_dotenv())
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-
-
 # Getting Stripe Secret Store API LIst
 # secret_list = stripe.apps.Secret.list(
 #     scope = {"type": "account"},
