@@ -2,15 +2,6 @@ import pymongo
 from cryptography.fernet import Fernet
 import json
 
-
-given_data = {
-    "account_id": "",
-    "access_token": ""
-}
-
-given_data = json.dumps(given_data)
-given_data_jsn = json.loads(given_data)
-
 class DatabaseUtils():
 
     def __init__(self, client=None):
@@ -24,7 +15,6 @@ class DatabaseUtils():
         self.fer_obj = Fernet(key=self.key)
         self.client = client
         self.collection = collection
-
 
     def insert_to_db(self, data):
         data = json.loads(data)
@@ -70,4 +60,3 @@ class DatabaseUtils():
         encrypt_token, encrypt_key = data.split(self.salt)
         decrypted_token = Fernet(encrypt_key).decrypt(encrypt_token).decode()
         return decrypted_token
-    
