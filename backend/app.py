@@ -2,7 +2,7 @@ import json
 from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 from oauth_utils import get_oauth_link, save_user_data, get_user_payouts, download_payout_report
-from oauth_utils import check_user_creds,  deauthorize_user
+from oauth_utils import check_user_creds,  deauthorize_user_handler, check_user_existence
 
 app = Flask(__name__)
 
@@ -20,6 +20,7 @@ def home_page():
 def construct_oauth_link():
     get_data = request.args.to_dict()
     session['state'] = get_data['state']
+    print(get_data)
     url = get_oauth_link(data=get_data)
     return redirect(url)
 
@@ -27,9 +28,9 @@ def construct_oauth_link():
 @app.route("/authorize-oauth/", methods=["GET"])
 def handle_oauth_redirect():
     get_data = request.args.to_dict()
-    if request.args.get("state") != session['state']:
-        return json.dumps({"error": "Incorrect state parameter: " + request.args.get("state")}), 403
+    print("Auth: ", get_data)
     url = save_user_data(get_data=get_data)
+    print("URL: ", url)
     return redirect(url)
 
 
@@ -62,6 +63,17 @@ def download_csv():
     filename = download_payout_report(account_id=account_id)
     return send_file(filename, mimetype='text/csv', as_attachment=True)
 
+@app.route("/check-user/", methods=["POST"])
+def check_user():
+    payload = json.loads(request.data.decode('utf-8'))
+    userExist = check_user_existence(payload)
+
+    if userExist:
+        return jsonify({"userExist": True})
+    else:
+        return jsonify({"userExist": False})
+
+
 
 # De-Authorizing an User
 @app.route("/deauthorize_user/", methods=["POST"])
@@ -72,8 +84,8 @@ def deauthorize_user():
     if request.method == "POST":
         payload_json = json.loads(request.data.decode('utf-8'))
         account_id = payload_json['account_id']
-        result = deauthorize_user(account_id)
-        return jsonify(result)
+        result = deauthorize_user_handler(account_id)
+        return jsonify({"result": result, "userExist": False})
 
 
 def _build_cors_preflight_response():
