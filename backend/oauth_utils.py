@@ -42,6 +42,7 @@ def save_user_data(get_data):
         'account_id': connected_account_id,
         'access_token': access_token
     }
+    print(tokenData)
     tokenData = json.dumps(tokenData)
     database_utils.insert_to_db(data=tokenData)
     secret_store = stripe.apps.Secret.create(
@@ -94,10 +95,16 @@ def check_user_creds(payload, signature, account_id):
     response = {"result": result, 'hasSignedIn': hasSignedIn}
     return response
 
-def deauthorize_user(account_id):
+def deauthorize_user_handler(account_id):
     res = stripe.OAuth.deauthorize(
         stripe_user_id=account_id,
         client_id=os.environ.get("STRIPE_CLIENT_ID")
     )
     database_utils.remove_from_db(account_id=account_id)
     return res
+
+def check_user_existence(data):
+    account_id = data["account_id"]
+    userExist = database_utils.find_user_in_db(account_id=account_id)
+    
+    return userExist

@@ -7,7 +7,7 @@ class DatabaseUtils():
     def __init__(self, client=None):
         if client is None:
             client = pymongo.MongoClient(
-                "mongodb+srv://jayateerthd:password@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
+                "mongodb+srv://jayateerthd:dragonforce@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
             db = client["UserInfo"]
             collection = db["UserData"]
         self.salt = b"tyUQW@*A"
@@ -49,8 +49,14 @@ class DatabaseUtils():
         else:
             return False
 
+    def find_user_in_db(self, account_id):
+        user_data = self.collection.find_one({"account_id": account_id})
+        if user_data is not None:
+            return True
+        else:
+            return False
+        
     # Private Methods
-
     def __encrypter(self, token):
         encrypted_token = self.fer_obj.encrypt(token.encode())
         encrypted_token = encrypted_token + self.salt + self.key
