@@ -18,7 +18,7 @@ const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
 const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
     const { mode } = environment;
     const [deauth, setDeauth] = useState('');
-    const [userExist, setUserExist] = useState<boolean>(false);
+    const [userExist, setUserExist] = useState<boolean>();
     const [authURL, setAuthURL] = useState('');
     const deauthorize_user = async () => {
         const data = await fetch(BACKEND_URL + 'deauthorize_user/', {

@@ -1,7 +1,7 @@
 {
-  "id": "com.example.basic-oauth2-test",
+  "id": "com.example.stripe-app_-payout",
   "version": "0.0.2",
-  "name": "Basic-OAuth2 Test",
+  "name": "StripeRetrievalApp",
   "icon": "",
   "permissions": [
     {

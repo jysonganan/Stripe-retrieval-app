@@ -8,7 +8,7 @@ import AppSettings from '../src/views/AppSettings';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-03-27 09:39:35.924177481 +0530 IST m=+0.035362234'
+export const BUILD_TIME = '2023-03-27 21:53:10.611066443 +0530 IST m=+0.012392409'
 
 export {
 	
@@ -20,9 +20,9 @@ export {
 	
 };
 export default {
-  "id": "com.example.basic-oauth2-test",
+  "id": "com.example.stripe-app_-payout",
   "version": "0.0.2",
-  "name": "Basic-OAuth2 Test",
+  "name": "StripeRetrievalApp",
   "icon": "",
   "permissions": [
     {

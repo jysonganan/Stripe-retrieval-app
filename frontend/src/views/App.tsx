@@ -22,28 +22,7 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const [authURL, setAuthURL] = useState('');
     const [stripeStatus, setStripeStatus] = useState<string>('down');
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
-    const getStatus = async () => {
-        const data = await fetch(BACKEND_URL + 'health-check/', {
-            method: "POST",
-            headers: {
-                'stripe-signature': await fetchStripeSignature(),
-                'Content-type': 'application/json',
 
-            },
-            body: JSON.stringify({
-                user_id: userContext?.id,
-                account_id: userContext?.account.id
-            })
-        }).then(response => response.json())
-            .then(data => {
-                setHasSignedIn(data.hasSignedIn);
-                setStripeStatus(data.result == 'OK' ? 'Up' : 'Down');
-            })
-
-    }
-
-
-    getStatus();
     useEffect(() => {
         // validateUser();
         if (hasSignedIn) {
@@ -53,6 +32,26 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
         createOAuthState().then(({state, challenge}) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
+        const getStatus = async () => {
+            const data = await fetch(BACKEND_URL + 'health-check/', {
+                method: "POST",
+                headers: {
+                    'stripe-signature': await fetchStripeSignature(),
+                    'Content-type': 'application/json',
+    
+                },
+                body: JSON.stringify({
+                    user_id: userContext?.id,
+                    account_id: userContext?.account.id
+                })
+            }).then(response => response.json())
+                .then(data => {
+                    setHasSignedIn(data.hasSignedIn);
+                    setStripeStatus(data.result == 'OK' ? 'Up' : 'Down');
+                })
+    
+        }
+        getStatus();        
         
     }, [mode]);
     return (
