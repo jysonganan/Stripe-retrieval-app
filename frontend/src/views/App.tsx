@@ -8,8 +8,8 @@ import fetchStripeSignature from '@stripe/ui-extension-sdk/signature';
 const {useState, useEffect} = React;
 
 
-// const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
-const BACKEND_URL = 'http://localhost:5000/'
+const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
+// const BACKEND_URL = 'http://localhost:5000/'
 
 const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/${mode === 'test' ? 'test/' : 'live/'}apps-oauth/com.example.oauth-example`;
 
