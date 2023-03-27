@@ -25,31 +25,32 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const [gotPayoutData, setPayoutData] = useState<boolean>(false)
     const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}`;
 
-
-    const getStatus = async () => {
-        const data = await fetch(BACKEND_URL + 'health-check/', {
-            method: "POST",
-            headers: {
-                'stripe-signature': await fetchStripeSignature(),
-                'Content-type': 'application/json',
-
-            },
-            body: JSON.stringify({
-                user_id: userContext?.id,
-                account_id: userContext?.account.id
-            })
-        }).then(response => response.json())
-            .then(data => {
-                setHasSignedIn(data.hasSignedIn);
-
-            })
-    }
-
-    getStatus();
     useEffect(() => {
         createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
+
+
+        const getStatus = async () => {
+            const data = await fetch(BACKEND_URL + 'health-check/', {
+                method: "POST",
+                headers: {
+                    'stripe-signature': await fetchStripeSignature(),
+                    'Content-type': 'application/json',
+
+                },
+                body: JSON.stringify({
+                    user_id: userContext?.id,
+                    account_id: userContext?.account.id
+                })
+            }).then(response => response.json())
+                .then(data => {
+                    setHasSignedIn(data.hasSignedIn);
+
+                })
+        }
+
+        getStatus();
     }, []);
 
 
@@ -82,6 +83,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         setMyData(JSON.parse(data.output_df_json));
         setHasSignedIn(data.hasSignedIn);
         setPayoutData(data.hasData);
+        console.log(monthValue)
     }
 
     let created: never[] = []
