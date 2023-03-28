@@ -1,4 +1,4 @@
-import { Box, ContextView, ListItem, List, Button, Banner, FormFieldGroup, TextField } from "@stripe/ui-extension-sdk/ui";
+import { Box, ContextView, ListItem, List, Button, Banner, Badge, FormFieldGroup, TextField } from "@stripe/ui-extension-sdk/ui";
 import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
 import { useEffect, useState } from "react";
 import { createOAuthState } from "@stripe/ui-extension-sdk/oauth";
@@ -22,7 +22,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const [hasSignedIn, setHasSignedIn] = useState(true)
     const [monthValue, setMonthValue] = useState('');
     const [yearValue, setYearValue] = useState('');
-    const [gotPayoutData, setPayoutData] = useState<boolean>(false)
+    const [gotPayoutData, setPayoutData] = useState<boolean>()
     const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}`;
 
     useEffect(() => {
@@ -83,7 +83,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         setMyData(JSON.parse(data.output_df_json));
         setHasSignedIn(data.hasSignedIn);
         setPayoutData(data.hasData);
-        console.log(monthValue)
+        console.log(gotPayoutData)
     }
 
     let created: never[] = []
@@ -114,7 +114,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 }}>
                     <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
                         <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth} label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
-                        <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year" name="year" placeholder="YY" hiddenElements={['label']} />
+                        <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year" name="year" placeholder="YYYY" hiddenElements={['label']} />
                     </FormFieldGroup>
                     <Box css={{
                         stack: 'z',
@@ -126,6 +126,12 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                     </Box>
 
                 </Box>
+            }
+            {!gotPayoutData && !data.length &&
+                <Badge type="info">
+                There is no Data Present for this Month and Year
+              </Badge>
+              
             }
             {gotPayoutData && hasSignedIn && <List>
                 <ListItem

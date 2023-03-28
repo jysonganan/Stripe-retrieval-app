@@ -29,10 +29,16 @@
     ],
     "content_security_policy": {
       "connect-src": [
-        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
-      ],
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/health-check/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get-oauth-link/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize-oauth/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get_payouts/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/download-report/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/check-user/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/deauthorize_user/"
+       ],
       "image-src": null,
-      "purpose": "Send data to example service"
+      "purpose": "Send Data to VercelDeploy"
     }
   }
 }
