@@ -24,11 +24,6 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
 
     useEffect(() => {
-        // validateUser();
-        if (hasSignedIn) {
-            // Getting Payouts Details
-        }
-
         createOAuthState().then(({state, challenge}) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
@@ -56,8 +51,8 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     }, [mode]);
     return (
 
-        <ContextView title="Payout App[TEST]">
-            <Box>Stripe is {stripeStatus}</Box>
+        <ContextView title="PayoutView App">
+            
             {hasSignedIn &&
                 <Badge type="info">You are Already Authorized to Our App!</Badge>
             }

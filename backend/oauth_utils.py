@@ -11,10 +11,11 @@ database_utils = DatabaseUtils()
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 
-
+oauth_mode = ""
 def get_oauth_link(data):
     state = data["state"]
     mode = data["mode"]
+    oauth_mode = mode
     args = {
         "client_id": os.environ.get("STRIPE_CLIENT_ID"),
         "state": state,
@@ -42,26 +43,31 @@ def save_user_data(get_data):
         'account_id': connected_account_id,
         'access_token': access_token
     }
-    print(tokenData)
     tokenData = json.dumps(tokenData)
     database_utils.insert_to_db(data=tokenData)
-    secret_store = stripe.apps.Secret.create(
-        name='My_API_KEY',
-        payload=tokenData,
-        scope={'type': 'account'}
-    )
-    url = "https://dashboard.stripe.com/test/dashboard"
+    if oauth_mode == 'live':
+        url = "https://dashboard.stripe.com/dashboard"
+    else:
+        url = "https://dashboard.stripe.com/test/dashboard"
+        
     return url
 
 def get_user_payouts(data):
     account_id = data["account_id"]
+    response = {}
     user_access_token = database_utils.find_in_db(account_id=account_id)
     if not user_access_token:
-        response = {"hasSignedIn": False}
+        response["hasSignedIn"] = False
         return response
+    response["hasSignedIn"] = True
     output_df = retrieve_current_payouts(api_key=user_access_token)
     output_df_json = output_df.to_json(orient='records')
-    response = {"output_df_json":output_df_json, "hasSignedIn": True}
+    output_data = json.loads(output_df_json)
+    if len(output_data) == 0:
+        response["hasData"] = False
+    else:
+        response["hasData"] = True
+        response["output_df_json"] = output_df_json
     return response
 
 def download_payout_report(account_id):
@@ -73,11 +79,10 @@ def download_payout_report(account_id):
     return filename
 
 def check_user_creds(payload, signature, account_id):
-    user_access_token = database_utils.find_in_db(account_id=account_id)
+    
     try:
-        event = stripe.Webhook.construct_event(
-            payload, signature, os.getenv('STRIPE_APP_SECRET')
-        )
+        user_access_token = database_utils.find_in_db(account_id=account_id)
+
 
     except ValueError as e:
         return jsonify({'error': str(e)}, 400)
@@ -93,7 +98,7 @@ def check_user_creds(payload, signature, account_id):
     else:
         hasSignedIn = False
     response = {"result": result, 'hasSignedIn': hasSignedIn}
-    return response
+    return hasSignedIn, result
 
 def deauthorize_user_handler(account_id):
     res = stripe.OAuth.deauthorize(
@@ -107,4 +112,5 @@ def check_user_existence(data):
     account_id = data["account_id"]
     userExist = database_utils.find_user_in_db(account_id=account_id)
     
-    return userExist
+    return 
+

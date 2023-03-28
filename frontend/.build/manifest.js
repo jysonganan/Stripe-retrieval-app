@@ -8,7 +8,7 @@ import AppSettings from '../src/views/AppSettings';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-03-27 21:53:10.611066443 +0530 IST m=+0.012392409'
+export const BUILD_TIME = '2023-03-28 22:25:54.161309022 +0530 IST m=+0.036945168'
 
 export {
 	
@@ -50,10 +50,16 @@ export default {
     ],
     "content_security_policy": {
       "connect-src": [
-        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/health-check/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get-oauth-link/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize-oauth/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get_payouts/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/download-report/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/check-user/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/deauthorize_user/"
       ],
       "image-src": null,
-      "purpose": "Send data to example service"
+      "purpose": "Send Data to VercelDeploy"
     }
   }
 }
