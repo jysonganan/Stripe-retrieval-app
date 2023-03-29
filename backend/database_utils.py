@@ -30,8 +30,8 @@ class DatabaseUtils():
         for user_data in cur:
             print("UserAccountID: ", user_data["account_id"])
 
-    def find_in_db(self, account_id):
-        user_data = self.collection.find_one({"account_id": account_id})
+    def find_in_db(self, account_id, mode):
+        user_data = self.collection.find_one({"account_id": account_id, "mode": mode})
         if user_data is not None:
             user_token = user_data["access_token"]
             user_access_token = self.__decrypter(data=user_token)
@@ -40,8 +40,8 @@ class DatabaseUtils():
         else:
             return False
 
-    def remove_from_db(self, account_id):
-        obj_to_delete = self.collection.find_one({"account_id": account_id})
+    def remove_from_db(self, account_id, mode):
+        obj_to_delete = self.collection.find_one({"account_id": account_id, "mode": mode})
         if obj_to_delete is not None:
             res = self.collection.delete_one(obj_to_delete)
             return res
@@ -49,8 +49,8 @@ class DatabaseUtils():
         else:
             return False
 
-    def find_user_in_db(self, account_id):
-        user_data = self.collection.find_one({"account_id": account_id})
+    def find_user_in_db(self, account_id, mode):
+        user_data = self.collection.find_one({"account_id": account_id, "mode": mode})
         if user_data is not None:
             return True
         else:
@@ -66,3 +66,4 @@ class DatabaseUtils():
         encrypt_token, encrypt_key = data.split(self.salt)
         decrypted_token = Fernet(encrypt_key).decrypt(encrypt_token).decode()
         return decrypted_token
+

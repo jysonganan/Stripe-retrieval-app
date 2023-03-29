@@ -23,7 +23,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const [monthValue, setMonthValue] = useState('');
     const [yearValue, setYearValue] = useState('');
     const [gotPayoutData, setPayoutData] = useState<boolean>()
-    const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}`;
+    const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}&mode=${mode}`;
 
     useEffect(() => {
         createOAuthState().then(({ state, challenge }) => {
@@ -41,7 +41,8 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 },
                 body: JSON.stringify({
                     user_id: userContext?.id,
-                    account_id: userContext?.account.id
+                    account_id: userContext?.account.id,
+                    mode: mode
                 })
             }).then(response => response.json())
                 .then(data => {
