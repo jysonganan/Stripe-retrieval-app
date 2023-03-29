@@ -43,8 +43,8 @@ def verify_user():
     payload = request.data.decode('utf-8')
     payload_json = json.loads(payload)
     account_id = payload_json['account_id']
-    hasSignedIn, result = check_user_creds(
-        payload=payload, account_id=account_id, signature=signature)
+    mode = payload_json["mode"]
+    hasSignedIn, result = check_user_creds(account_id=account_id, mode=mode)
     return jsonify({"result": result, "hasSignedIn": hasSignedIn})
 
 
@@ -64,7 +64,10 @@ def get_payouts():
 @app.route('/download-report/', methods=["GET"])
 def download_csv():
     account_id = request.args.get("account_id")
-    filename = download_payout_report(account_id=account_id)
+    mode = request.args.get("mode")
+    month = request.args.get("current_month")
+    year = request.args.get("current_year")
+    filename = download_payout_report(account_id=account_id, mode=mode, month=month, year=year)
     return send_file(filename, mimetype='text/csv', as_attachment=True)
 
 
@@ -88,7 +91,8 @@ def deauthorize_user():
     if request.method == "POST":
         payload_json = json.loads(request.data.decode('utf-8'))
         account_id = payload_json['account_id']
-        result = deauthorize_user_handler(account_id)
+        mode = payload_json["mode"]
+        result = deauthorize_user_handler(account_id=account_id, mode=mode)
         return jsonify(result)
 
 

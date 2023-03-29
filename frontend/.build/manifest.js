@@ -8,7 +8,7 @@ import AppSettings from '../src/views/AppSettings';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-03-28 22:25:54.161309022 +0530 IST m=+0.036945168'
+export const BUILD_TIME = '2023-03-29 18:28:21.043890508 +0530 IST m=+0.012608360'
 
 export {
 	

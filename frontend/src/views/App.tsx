@@ -37,7 +37,8 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
                 },
                 body: JSON.stringify({
                     user_id: userContext?.id,
-                    account_id: userContext?.account.id
+                    account_id: userContext?.account.id,
+                    mode: mode
                 })
             }).then(response => response.json())
                 .then(data => {
@@ -78,3 +79,8 @@ export default OAuthApp;
 
 
 
+/*
+  "id": "com.example.basic-oauth2-test",
+  "version": "0.0.2",
+  "name": "Basic-OAuth2 Test",
+*/

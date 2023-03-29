@@ -28,7 +28,8 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
             },
             body: JSON.stringify({
                 user_id: userContext?.id,
-                account_id: userContext?.account.id
+                account_id: userContext?.account.id,
+                mode: mode
             })
         }).then(response => response.json())
             .then(data => setUserExist(data.userExist))
@@ -44,7 +45,8 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
                 'Content-type': 'application/json'
             },
             body: JSON.stringify({
-                account_id: userContext?.account.id
+                account_id: userContext?.account.id,
+                mode: mode
             })
 
         }).then(response => response.json())
