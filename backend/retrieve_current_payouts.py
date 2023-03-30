@@ -17,7 +17,7 @@ def retrieve_current_payouts(api_key, current_month='', current_year=''):
 
     output_df = pd.DataFrame([])
     for pay_out_id in current_pay_out_ids:
-        transactions = stripe.BalanceTransaction.list(payout=pay_out_id, limit=10)
+        transactions = stripe.BalanceTransaction.list(payout=pay_out_id, limit=100)
         payout_total = transactions['data'][0]['amount'] / 100 * (-1)
 
         for i in range(1, len(transactions['data'])):
