@@ -36,8 +36,13 @@ def save_user_data(get_data):
     global oauth_mode
     code = get_data["code"]
     try:
-        response = stripe.OAuth.token(
-            grant_type="authorization_code", code=code, )
+        if oauth_mode.lower() == 'live':
+            stripe.api_key = os.environ.get("STRIPE_SECRET_KEY_LIVE")
+            response = str.OAuth.token(
+                grant_type="authorization_code", code=code, )
+        else:
+            response = stripe.OAuth.token(
+                grant_type="authorization_code", code=code, )
     except stripe.oauth_error.OAuthError as e:
         return json.dumps({"error": "Invalid authorization code: " + code}), 400
     except Exception as e:
@@ -114,10 +119,17 @@ def download_payout_report(account_id, mode, month, year):
 
 
 def deauthorize_user_handler(account_id, mode):
-    res = stripe.OAuth.deauthorize(
-        stripe_user_id=account_id,
-        client_id=os.environ.get("STRIPE_CLIENT_ID")
-    )
+    if mode.lower() == 'live':
+        stripe.api_key=os.environ.get("STRIPE_SECRET_KEY_LIVE")
+        res = stripe.OAuth.deauthorize(
+            stripe_user_id=account_id,
+            client_id=os.environ.get("STRIPE_CLIENT_ID")
+        )
+    else:
+        res = stripe.OAuth.deauthorize(
+            stripe_user_id=account_id,
+            client_id=os.environ.get("STRIPE_CLIENT_ID")
+        )
     database_utils.remove_from_db(account_id=account_id, mode=mode)
     return res
 
