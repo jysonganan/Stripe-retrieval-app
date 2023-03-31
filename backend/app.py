@@ -2,7 +2,7 @@ import json
 from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 from oauth_utils import get_oauth_link, save_user_data, get_user_payouts, download_payout_report
-from oauth_utils import check_user_creds,  deauthorize_user_handler, check_user_existence
+from oauth_utils import check_user_creds, deauthorize_user_handler, check_user_existence
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -12,13 +12,15 @@ app.secret_key = b'_5#y2L"JF878z\n\xec]/'
 
 @app.route("/")
 def home_page():
-    return jsonify({"result":"HelloFlask!"})
+    return jsonify({"result": "HelloFlask!"})
+
 
 @app.after_request
 def add_csp_headers(response):
     csp_header = "default-src 'self'; connect-src 'self' https://dashboard.stripe.com/;"
     response.headers.add('Content-Security-Policy', csp_header)
     return response
+
 
 @app.route("/get-oauth-link/", methods=["GET", 'POST'])
 def construct_oauth_link():

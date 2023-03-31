@@ -1,7 +1,18 @@
-import { Box, ContextView, ListItem, List, Button, Banner, Badge, FormFieldGroup, TextField } from "@stripe/ui-extension-sdk/ui";
-import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
-import { useEffect, useState } from "react";
-import { createOAuthState } from "@stripe/ui-extension-sdk/oauth";
+import {
+    Box,
+    ContextView,
+    ListItem,
+    List,
+    Button,
+    Banner,
+    Badge,
+    FormFieldGroup,
+    TextField,
+    Spinner
+} from "@stripe/ui-extension-sdk/ui";
+import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
+import {useEffect, useState} from "react";
+import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
 import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
@@ -12,21 +23,23 @@ const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
     `${BACKEND_URL}get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
-const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue) => {
+const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
     const maxLengthForMonth: number = 2
     const maxLengthForYear: number = 4
-    const { mode } = environment;
+    const {mode} = environment;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState(true)
     const [monthValue, setMonthValue] = useState('');
     const [yearValue, setYearValue] = useState('');
-    const [gotPayoutData, setPayoutData] = useState<boolean>()
+    const [gotPayoutData, setPayoutData] = useState<boolean>(false)
+    const [gotResponse, setgotResponse] = useState<boolean>(false)
+    const [spinnerOpen, setSpinnerOpen] = useState<boolean>(false)
     const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}&mode=${mode}`;
 
     useEffect(() => {
-        createOAuthState().then(({ state, challenge }) => {
+        createOAuthState().then(({state, challenge}) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
 
@@ -64,6 +77,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     }
 
     const handleSubmit = async (event) => {
+        setSpinnerOpen(true)
         // event.preventDefault();
         const response = await fetch(BACKEND_URL + 'get_payouts/', {
             method: "POST",
@@ -77,14 +91,21 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 mode: mode
             })
         })
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
+        } else if (response.ok) {
+            console.log(response)
+            setPayoutData(true)
+            setSpinnerOpen(false)
         }
+
         const data = await response.json()
         setMyData(JSON.parse(data.output_df_json));
         setHasSignedIn(data.hasSignedIn);
-        setPayoutData(data.hasData);
-        console.log(gotPayoutData)
+        setgotResponse(data.hasData)
+
+
     }
 
     let created: never[] = []
@@ -113,9 +134,12 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                     borderRadius: 'large',
 
                 }}>
-                    <FormFieldGroup legend="Enter Month and Year" description="Enter the Year and Month from which you want to fetch data">
-                        <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth} label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
-                        <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year" name="year" placeholder="YYYY" hiddenElements={['label']} />
+                    <FormFieldGroup legend="Enter Month and Year"
+                                    description="Enter the Year and Month from which you want to fetch data">
+                        <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth}
+                                   label="Month" name="month" placeholder="MM" hiddenElements={['label']}/>
+                        <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year"
+                                   name="year" placeholder="YYYY" hiddenElements={['label']}/>
                     </FormFieldGroup>
                     <Box css={{
                         stack: 'z',
@@ -128,13 +152,21 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
 
                 </Box>
             }
-            {!gotPayoutData && !data.length &&
-                <Badge type="info">
-                There is no Data Present for this Month and Year
-              </Badge>
-              
+            {spinnerOpen &&
+                <Spinner size="large" />
+
             }
-            {gotPayoutData && hasSignedIn && <List>
+            {!gotPayoutData  && hasSignedIn &&
+                <Badge type="info">
+                    Please Enter Month and Year Values, to view Data
+                </Badge>
+            }
+            {gotPayoutData && !data.length && hasSignedIn &&
+                <Badge type="warning">
+                    There is no Data Present for this Month and Year
+                </Badge>
+            }
+            {gotResponse && hasSignedIn && <List>
                 <ListItem
                     value={net[0]}
                     id="2"
@@ -191,10 +223,10 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 />
             </List>}
 
-            <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
-                {gotPayoutData &&
-                    <Button href={downloadEndpoint} type="primary" css={{ width: 'fill', alignX: 'center' }}
-                        target="_blank">Download
+            <Box css={{stack: 'y', gap: 'large', margin: 'large'}}>
+                {gotResponse &&
+                    <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}}
+                            target="_blank">Download
                         CSV</Button>
                 }
 
