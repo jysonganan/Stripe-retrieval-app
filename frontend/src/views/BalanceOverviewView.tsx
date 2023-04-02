@@ -10,9 +10,9 @@ import {
     TextField,
     Spinner
 } from "@stripe/ui-extension-sdk/ui";
-import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
-import {useEffect, useState} from "react";
-import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
+import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
+import { useEffect, useState } from "react";
+import { createOAuthState } from "@stripe/ui-extension-sdk/oauth";
 import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
@@ -23,10 +23,11 @@ const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
     `${BACKEND_URL}get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
-const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
-    const maxLengthForMonth: number = 2
-    const maxLengthForYear: number = 4
-    const {mode} = environment;
+
+const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue) => {
+    const maxLengthForMonth: number = 2;
+    const maxLengthForYear: number = 4;
+    const { mode } = environment;
     let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
@@ -39,7 +40,7 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
     const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}&mode=${mode}`;
 
     useEffect(() => {
-        createOAuthState().then(({state, challenge}) => {
+        createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
 
@@ -104,6 +105,9 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
         setMyData(JSON.parse(data.output_df_json));
         setHasSignedIn(data.hasSignedIn);
         setgotResponse(data.hasData)
+        if (data.error){
+            setSpinnerOpen(false);
+        }
 
 
     }
@@ -135,11 +139,11 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
 
                 }}>
                     <FormFieldGroup legend="Enter Month and Year"
-                                    description="Enter the Year and Month from which you want to fetch data">
+                        description="Enter the Year and Month from which you want to fetch data">
                         <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth}
-                                   label="Month" name="month" placeholder="MM" hiddenElements={['label']}/>
+                            label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
                         <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year"
-                                   name="year" placeholder="YYYY" hiddenElements={['label']}/>
+                            name="year" placeholder="YYYY" hiddenElements={['label']} />
                     </FormFieldGroup>
                     <Box css={{
                         stack: 'z',
@@ -152,20 +156,29 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
 
                 </Box>
             }
-            {spinnerOpen &&
-                <Spinner size="large" />
 
-            }
-            {!gotPayoutData  && hasSignedIn &&
+            <Box css={{
+                stack: 'z',
+                alignX: 'center',
+                alignY: 'center'
+            }}>
+                {spinnerOpen &&
+                    <Spinner size="large" />
+                }
+            </Box>
+
+            {!gotPayoutData && hasSignedIn &&
                 <Badge type="info">
                     Please Enter Month and Year Values, to view Data
                 </Badge>
             }
+
             {gotPayoutData && !data.length && hasSignedIn &&
                 <Badge type="warning">
                     There is no Data Present for this Month and Year
                 </Badge>
             }
+
             {gotResponse && hasSignedIn && <List>
                 <ListItem
                     value={net[0]}
@@ -223,10 +236,10 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                 />
             </List>}
 
-            <Box css={{stack: 'y', gap: 'large', margin: 'large'}}>
+            <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
                 {gotResponse &&
-                    <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}}
-                            target="_blank">Download
+                    <Button href={downloadEndpoint} type="primary" css={{ width: 'fill', alignX: 'center' }}
+                        target="_blank">Download
                         CSV</Button>
                 }
 

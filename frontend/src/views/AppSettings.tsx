@@ -3,6 +3,7 @@ import {
     Button,
     Banner,
     SettingsView,
+    Spinner
 } from "@stripe/ui-extension-sdk/ui";
 import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
 import { useState, useEffect } from "react";
@@ -20,7 +21,9 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
     const [deauth, setDeauth] = useState('');
     const [userExist, setUserExist] = useState<boolean>();
     const [authURL, setAuthURL] = useState('');
+    const [spinnerOpen, setSpinnerOpen] = useState<boolean>(false)
     const deauthorize_user = async () => {
+        setSpinnerOpen(true)
         const data = await fetch(BACKEND_URL + 'deauthorize_user/', {
             method: "POST",
             headers: {
@@ -72,6 +75,16 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
                         description="You will no longer able to access your data through App"
                         actions={
                             <Button onPress={deauthorize_user} type="destructive">Remove Authorization</Button>
+                        }
+                    />
+                }
+                {userExist && spinnerOpen &&
+                    <Banner
+                        type="critical"
+                        title="Remove Authorization"
+                        description="You will no longer able to access your data through App"
+                        actions={
+                            <Spinner />
                         }
                     />
                 }

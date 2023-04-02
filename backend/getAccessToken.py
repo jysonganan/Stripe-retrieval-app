@@ -8,6 +8,10 @@ import urllib
 from cryptography.fernet import Fernet
 from dotenv import load_dotenv, find_dotenv
 
+load_dotenv(find_dotenv())
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+
 # Getting Stripe Secret Store API LIst
 # secret_list = stripe.apps.Secret.list(
 #     scope = {"type": "account"},
@@ -116,6 +120,9 @@ from dotenv import load_dotenv, find_dotenv
 #         decrypted_access_token = self.fer_obj.decrypt(encrypted_access_token).decode()
 #         return decrypted_access_token
             
-
-
-    
+# stripe.api_key = ""
+#
+#
+# stripe.Payout.create(amount=5000, currency="inr")
+#
+#

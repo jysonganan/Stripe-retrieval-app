@@ -3,6 +3,9 @@ from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 from oauth_utils import get_oauth_link, save_user_data, get_user_payouts, download_payout_report
 from oauth_utils import check_user_creds, deauthorize_user_handler, check_user_existence
+import threading
+import queue
+
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -110,6 +113,7 @@ def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
+# Increasing the TIMEOUT VALUE from 30 Secs to 60 Secs
 
 if __name__ == '__main__':
     app.run(debug=True)
