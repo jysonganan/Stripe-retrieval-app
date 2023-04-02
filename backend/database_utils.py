@@ -2,6 +2,7 @@ import pymongo
 from cryptography.fernet import Fernet
 import json
 
+
 class DatabaseUtils():
 
     def __init__(self, client=None):
@@ -55,7 +56,7 @@ class DatabaseUtils():
             return True
         else:
             return False
-        
+
     # Private Methods
     def __encrypter(self, token):
         encrypted_token = self.fer_obj.encrypt(token.encode())
@@ -67,3 +68,8 @@ class DatabaseUtils():
         decrypted_token = Fernet(encrypt_key).decrypt(encrypt_token).decode()
         return decrypted_token
 
+
+# if __name__ == '__main__':
+#     inst = DatabaseUtils()
+#     res = inst.find_in_db(account_id="acct_1MdaZaSAzD59KXIa", mode="test")
+#     print(res)
