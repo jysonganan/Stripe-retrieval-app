@@ -14,13 +14,12 @@ const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/${mode === 'test' ? 'test/' : 'live/'}apps-oauth/com.example.oauth-example`;
 
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
-    BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
+    BACKEND_URL + `get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
 
 const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
     const {mode} = environment;
     const [authURL, setAuthURL] = useState('');
-    const [stripeStatus, setStripeStatus] = useState<string>('down');
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
 
     useEffect(() => {
@@ -43,7 +42,7 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
             }).then(response => response.json())
                 .then(data => {
                     setHasSignedIn(data.hasSignedIn);
-                    setStripeStatus(data.result == 'OK' ? 'Up' : 'Down');
+
                 })
     
         }

@@ -8,7 +8,7 @@ import AppSettings from '../src/views/AppSettings';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-04-02 16:26:30.555926673 +0530 IST m=+0.011214178'
+export const BUILD_TIME = '2023-04-03 11:17:43.573693748 +0530 IST m=+2514.715073689'
 
 export {
 	
@@ -52,7 +52,7 @@ export default {
       "connect-src": [
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/health-check/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get-oauth-link/",
-        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize-oauth/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize_oauth/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get_payouts/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/download-report/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/check-user/",

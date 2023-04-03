@@ -43,6 +43,7 @@ def save_user_data(get_data):
             response = str.OAuth.token(
                 grant_type="authorization_code", code=code, )
         else:
+            stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
             response = stripe.OAuth.token(
                 grant_type="authorization_code", code=code, )
     except stripe.oauth_error.OAuthError as e:
@@ -70,6 +71,11 @@ def check_user_creds(account_id, mode):
     try:
         user_access_token = database_utils.find_in_db(
             account_id=account_id, mode=mode)
+
+        if mode.lower() == 'live':
+            stripe.api_key = os.environ.get("STRIPE_SECRET_KEY_LIVE")
+        else:
+            stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 
     except ValueError as e:
         return jsonify({'error': str(e)}, 400)
@@ -152,6 +158,7 @@ def deauthorize_user_handler(account_id, mode):
             client_id=os.environ.get("STRIPE_CLIENT_ID")
         )
     else:
+        stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
         res = stripe.OAuth.deauthorize(
             stripe_user_id=account_id,
             client_id=os.environ.get("STRIPE_CLIENT_ID")
