@@ -3,8 +3,6 @@ from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 from oauth_utils import get_oauth_link, save_user_data, get_user_payouts, download_payout_report
 from oauth_utils import check_user_creds, deauthorize_user_handler, check_user_existence
-import threading
-import queue
 
 
 app = Flask(__name__)
@@ -33,7 +31,7 @@ def construct_oauth_link():
     return redirect(url)
 
 
-@app.route("/authorize-oauth/", methods=["GET"])
+@app.route("/authorize_oauth/", methods=["GET"])
 def handle_oauth_redirect():
     get_data = request.args.to_dict()
     if request.args.get("state") != session['state']:

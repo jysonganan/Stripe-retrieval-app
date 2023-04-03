@@ -31,7 +31,7 @@
       "connect-src": [
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/health-check/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get-oauth-link/",
-        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize-oauth/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize_oauth/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get_payouts/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/download-report/",
         "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/check-user/",
