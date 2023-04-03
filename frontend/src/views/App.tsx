@@ -68,7 +68,7 @@ const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
                     title="You have not Authorized!"
                     description="Please Authorize before you continue"
                     actions={
-                        <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+                        <Button type="primary" href={authURL}>Begin Authorize</Button>
                     }
                 />
             }

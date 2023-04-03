@@ -22,6 +22,7 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
     const [userExist, setUserExist] = useState<boolean>();
     const [authURL, setAuthURL] = useState('');
     const [spinnerOpen, setSpinnerOpen] = useState<boolean>(false)
+    const [loadingSpinner, setLoadingSpinner] = useState<boolean>(true)
     const deauthorize_user = async () => {
         setSpinnerOpen(true)
         const data = await fetch(BACKEND_URL + 'deauthorize_user/', {
@@ -42,26 +43,41 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
         createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
-        fetch(BACKEND_URL + 'check-user/', {
-            method: "POST",
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify({
-                account_id: userContext?.account.id,
-                mode: mode
+        const getUserStatus =async () => {
+            const response = await fetch(BACKEND_URL + 'check-user/', {
+                method: "POST",
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    account_id: userContext?.account.id,
+                    mode: mode
+                })
+    
             })
-
-        }).then(response => response.json())
-            .then(data => {
-                setUserExist(data.userExist);
-            })
+            if (response.ok){
+                setLoadingSpinner(false)
+            }
+            const data = await response.json();
+            setUserExist(data.userExist);
+        }
+        getUserStatus();
+        
     }, [mode]);
 
 
     return (
         <SettingsView onSave={() => {
         }}>
+            <Box css={{
+                stack: 'z',
+                alignX: 'center',
+                alignY: 'center'
+            }}>
+                {loadingSpinner &&
+                    <Spinner size="large" />
+                }
+            </Box>
             <Box
                 css={{
                     background: "container",
@@ -84,12 +100,12 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
                         title="Removing Authorization"
                         description="Don't worry you can add authorization again after this prcoess gets complete."
                         actions={
-                            <Spinner size="large"/>
+                            <Spinner size="large" />
                         }
                     />
                 }
 
-                {!userExist &&
+                {!userExist && !loadingSpinner &&
                     <Banner
                         type="default"
                         title="Begin Authorization"

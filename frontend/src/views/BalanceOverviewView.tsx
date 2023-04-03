@@ -268,7 +268,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                         title="You have not Sign In"
                         description="Please sign in before you continue"
                         actions={
-                            <Button type="primary" href={authURL} target="_blank">Begin Authorize</Button>
+                            <Button type="primary" href={authURL}>Begin Authorize</Button>
                         }
                     />
                 }

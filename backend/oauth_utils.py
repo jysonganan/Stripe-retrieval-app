@@ -21,13 +21,22 @@ def get_oauth_link(data):
     state = data["state"]
     mode = data["mode"]
     oauth_mode = mode
-    args = {
-        "client_id": os.environ.get("STRIPE_CLIENT_ID"),
-        "state": state,
-        "scope": "read_write",
-        "response_type": "code",
-        "mode": mode
-    }
+    if oauth_mode.lower() == 'live':
+        args = {
+            "client_id": os.environ.get("STRIPE_CLIENT_ID_LIVE"),
+            "state": state,
+            "scope": "read_write",
+            "response_type": "code",
+            "mode": mode
+        }
+    else:
+        args = {
+            "client_id": os.environ.get("STRIPE_CLIENT_ID"),
+            "state": state,
+            "scope": "read_write",
+            "response_type": "code",
+            "mode": mode
+        }
 
     url = "https://connect.stripe.com/oauth/authorize?{}".format(
         urllib.parse.urlencode(args))
@@ -119,7 +128,8 @@ def get_user_payouts(data):
         return response
     response["hasSignedIn"] = True
     result_queue = queue.Queue()
-    thread = ThreadedPayoutFunction(api_key=user_access_token, month=month, year=year, result_queue=result_queue)
+    thread = ThreadedPayoutFunction(
+        api_key=user_access_token, month=month, year=year, result_queue=result_queue)
     thread.start()
 
     thread.join(timeout=60)
