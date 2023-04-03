@@ -9,8 +9,8 @@ import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
 import { useState, useEffect } from "react";
 import { createOAuthState } from '@stripe/ui-extension-sdk/oauth';
 
-// const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
-const BACKEND_URL = 'http://localhost:5000/'
+const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
+// const BACKEND_URL = 'http://localhost:5000/'
 
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
     BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
@@ -68,7 +68,7 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
                     borderRadius: "medium",
                     padding: "large",
                 }}>
-                {userExist &&
+                {userExist && !spinnerOpen &&
                     <Banner
                         type="critical"
                         title="Remove Authorization"
@@ -80,11 +80,11 @@ const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
                 }
                 {userExist && spinnerOpen &&
                     <Banner
-                        type="critical"
-                        title="Remove Authorization"
-                        description="You will no longer able to access your data through App"
+                        type="caution"
+                        title="Removing Authorization"
+                        description="Don't worry you can add authorization again after this prcoess gets complete."
                         actions={
-                            <Spinner />
+                            <Spinner size="large"/>
                         }
                     />
                 }
