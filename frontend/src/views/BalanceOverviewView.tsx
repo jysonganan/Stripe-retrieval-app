@@ -8,7 +8,8 @@ import {
     Badge,
     FormFieldGroup,
     TextField,
-    Spinner
+    Spinner,
+    Inline
 } from "@stripe/ui-extension-sdk/ui";
 import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
 import { useEffect, useState } from "react";
@@ -36,7 +37,8 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const [yearValue, setYearValue] = useState('');
     const [gotPayoutData, setPayoutData] = useState<boolean>(false)
     const [gotResponse, setgotResponse] = useState<boolean>(false)
-    const [spinnerOpen, setSpinnerOpen] = useState<boolean>(false)
+    const [spinnerOpen, setSpinnerOpen] = useState<boolean>(true)
+    const [payoutLoad, setPayoutLoad] = useState<boolean>(false)
     const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}&mode=${mode}`;
 
     useEffect(() => {
@@ -58,11 +60,12 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                     account_id: userContext?.account.id,
                     mode: mode
                 })
-            }).then(response => response.json())
-                .then(data => {
-                    setHasSignedIn(data.hasSignedIn);
-
-                })
+            })
+            if (data.ok) {
+                setSpinnerOpen(false);
+            }
+            const result = await data.json();
+            setHasSignedIn(result.hasSignedIn);
         }
 
         getStatus();
@@ -78,7 +81,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     }
 
     const handleSubmit = async (event) => {
-        setSpinnerOpen(true)
+        setPayoutLoad(true)
         // event.preventDefault();
         const response = await fetch(BACKEND_URL + 'get_payouts/', {
             method: "POST",
@@ -98,14 +101,14 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         } else if (response.ok) {
             console.log(response)
             setPayoutData(true)
-            setSpinnerOpen(false)
+            setPayoutLoad(false)
         }
 
         const data = await response.json()
         setMyData(JSON.parse(data.output_df_json));
         setHasSignedIn(data.hasSignedIn);
         setgotResponse(data.hasData)
-        if (data.error){
+        if (data.error) {
             setSpinnerOpen(false);
         }
 
@@ -130,8 +133,18 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
 
 
     return (
-        <ContextView title="User Details">
-            {hasSignedIn &&
+        <ContextView title="PayoutView">
+
+            <Box css={{
+                stack: 'z',
+                alignX: 'center',
+                alignY: 'center'
+            }}>
+                {spinnerOpen && hasSignedIn &&
+                    <Spinner size="large" />
+                }
+            </Box>
+            {!spinnerOpen && hasSignedIn &&
                 <Box css={{
                     padding: 'medium',
                     color: 'primary',
@@ -151,23 +164,29 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                         alignY: 'center',
                         margin: 'medium'
                     }}>
-                        <Button type="primary" onPress={handleSubmit}>Get Data</Button>
+                            {payoutLoad && hasSignedIn &&
+                                <Spinner size="large" />
+                            }
+                            {!payoutLoad && hasSignedIn && 
+                                <Button type="primary" onPress={handleSubmit}>Get Data</Button>
+                            }
+
                     </Box>
 
                 </Box>
             }
-
+{/* 
             <Box css={{
                 stack: 'z',
                 alignX: 'center',
                 alignY: 'center'
             }}>
-                {spinnerOpen &&
+                {payoutLoad && hasSignedIn &&
                     <Spinner size="large" />
                 }
-            </Box>
+            </Box> */}
 
-            {!gotPayoutData && hasSignedIn &&
+            {!gotPayoutData && hasSignedIn && !spinnerOpen &&
                 <Badge type="info">
                     Please Enter Month and Year Values, to view Data
                 </Badge>

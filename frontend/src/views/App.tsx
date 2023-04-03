@@ -1,11 +1,16 @@
-import {ContextView, Button, Box, Badge, Banner} from '@stripe/ui-extension-sdk/ui';
+import { ContextView, 
+    Button, 
+    Box, 
+    Badge, 
+    Banner, 
+    Spinner } from '@stripe/ui-extension-sdk/ui';
 import * as React from 'react';
-import {createOAuthState} from '@stripe/ui-extension-sdk/oauth';
-import type {ExtensionContextValue} from '@stripe/ui-extension-sdk/context';
+import { createOAuthState } from '@stripe/ui-extension-sdk/oauth';
+import type { ExtensionContextValue } from '@stripe/ui-extension-sdk/context';
 import fetchStripeSignature from '@stripe/ui-extension-sdk/signature';
 
 
-const {useState, useEffect} = React;
+const { useState, useEffect } = React;
 
 
 const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
@@ -17,13 +22,13 @@ const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
     BACKEND_URL + `get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
 
-const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
-    const {mode} = environment;
+const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
+    const { mode } = environment;
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
-
+    const [spinnerOpen, setSpinnerOpen] = useState<boolean>(true)
     useEffect(() => {
-        createOAuthState().then(({state, challenge}) => {
+        createOAuthState().then(({ state, challenge }) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
         const getStatus = async () => {
@@ -32,28 +37,29 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
                 headers: {
                     'stripe-signature': await fetchStripeSignature(),
                     'Content-type': 'application/json',
-    
+
                 },
                 body: JSON.stringify({
                     user_id: userContext?.id,
                     account_id: userContext?.account.id,
                     mode: mode
                 })
-            }).then(response => response.json())
-                .then(data => {
-                    setHasSignedIn(data.hasSignedIn);
+            })
+            if(data.ok){
+                setSpinnerOpen(false);
+            }
+            const result = await data.json();
+            setHasSignedIn(result.hasSignedIn);
 
-                })
-    
         }
-        getStatus();        
-        
+        getStatus();
+
     }, [mode]);
     return (
 
         <ContextView title="PayoutView App">
-            
-            {hasSignedIn &&
+
+            {hasSignedIn && !spinnerOpen &&
                 <Badge type="info">You are Already Authorized to Our App!</Badge>
             }
             {!hasSignedIn &&
@@ -66,6 +72,16 @@ const OAuthApp = ({environment, userContext}: ExtensionContextValue) => {
                     }
                 />
             }
+
+            <Box css={{
+                stack: 'z',
+                alignX: 'center',
+                alignY: 'center'
+            }}>
+                {spinnerOpen &&
+                    <Spinner size="large" />
+                }
+            </Box>
         </ContextView>
 
     )
