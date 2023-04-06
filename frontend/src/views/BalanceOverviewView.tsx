@@ -18,8 +18,8 @@ import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
 
-const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
-// const BACKEND_URL = 'http://localhost:5000/'
+// const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
+const BACKEND_URL = 'http://localhost:5000/'
 
 const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
     `${BACKEND_URL}get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;

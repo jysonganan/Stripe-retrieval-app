@@ -132,9 +132,10 @@ def get_user_payouts(data):
         api_key=user_access_token, month=month, year=year, result_queue=result_queue)
     thread.start()
 
-    thread.join(timeout=60)
+    thread.join(timeout=90)
 
     if thread.is_alive():
+        print("Thread Error")
         response["error"] = True
         response["hasData"] = False
         return response
