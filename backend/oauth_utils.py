@@ -12,7 +12,7 @@ import queue
 database_utils = DatabaseUtils()
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-
+function_timeout = int(os.environ.get("FUNCTION_INVOCATION_TIMEOUT", "60"))
 oauth_mode = ""
 
 
