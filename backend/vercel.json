@@ -1,12 +1,11 @@
 {
     "version": 2,
-    "functions":{
-        "*.py": {
-            "runtime": "vercel.python.runtime.v1",
-            "memory": 128,
-            "timeout": 60
+    "builds": [
+        {
+            "src": "app.py",
+            "use": "@vercel/python"
         }
-    },
+    ],
     "routes": [
         {
             "src": "/(.*)",
