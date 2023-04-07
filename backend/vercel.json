@@ -12,12 +12,10 @@
             "dest": "app.py"
         }
     ],
-    "functions": [
-        {
-            "get_payouts": {
-                "memory": 128,
-                "timeout": 60
-            }
+    "functions": {
+        "get_payouts": {
+            "memory": 128,
+            "timeout": 60
         }
-    ]
+    }
 }
