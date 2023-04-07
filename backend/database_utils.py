@@ -1,14 +1,18 @@
 import pymongo
 from cryptography.fernet import Fernet
 import json
+import os
 
+
+#eDyEpWU6t0463lrC
 
 class DatabaseUtils():
 
     def __init__(self, client=None):
+        self.user_password = os.environ.get("MONGODB_PASSWORD")
         if client is None:
             client = pymongo.MongoClient(
-                "mongodb+srv://jayateerthd:dragonforce@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
+                f"mongodb+srv://jayateerthd:{self.user_password}@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
             db = client["UserInfo"]
             collection = db["UserData"]
         self.salt = b"tyUQW@*A"
