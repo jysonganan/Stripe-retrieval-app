@@ -1,21 +1,17 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "app.py",
-            "use": "@vercel/python"
+    "functions":{
+        "*.py": {
+            "runtime": "vercel.python.runtime.v1",
+            "memory": 128,
+            "timeout": 60
         }
-    ],
+    },
     "routes": [
         {
             "src": "/(.*)",
             "dest": "app.py"
         }
-    ],
-    "functions": {
-        "get_payouts": {
-            "memory": 128,
-            "maxDuration": 60
-        }
-    }
+    ]
+
 }
