@@ -15,7 +15,7 @@
     "functions": {
         "get_payouts": {
             "memory": 128,
-            "timeout": 60
+            "maxDuration": 60
         }
     }
 }
