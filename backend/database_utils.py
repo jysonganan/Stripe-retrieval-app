@@ -71,5 +71,3 @@ class DatabaseUtils():
         encrypt_token, encrypt_key = data.split(self.salt)
         decrypted_token = Fernet(encrypt_key).decrypt(encrypt_token).decode()
         return decrypted_token
-
-    

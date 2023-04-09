@@ -156,9 +156,7 @@ def download_payout_report(account_id, mode, month, year):
         account_id=account_id, mode=mode)
     res = retrieve_current_payouts(
         api_key=user_access_token, current_month=month, current_year=year)
-    filename = os.path.join('UserData', f'{account_id}-PayoutData.csv')
-    res.to_csv(filename, index=False)
-    return filename
+    return res
 
 
 def deauthorize_user_handler(account_id, mode):
