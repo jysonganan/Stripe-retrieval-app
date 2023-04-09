@@ -8,7 +8,7 @@ import AppSettings from '../src/views/AppSettings';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-04-07 09:52:48.133367397 +0530 IST m=+0.191377349'
+export const BUILD_TIME = '2023-04-08 22:20:35.761801841 +0530 IST m=+0.071252758'
 
 export {
 	
@@ -61,5 +61,8 @@ export default {
       "image-src": null,
       "purpose": "Send Data to VercelDeploy"
     }
+  },
+  "constants": {
+    "BACKEND_URL": "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
   }
 }
