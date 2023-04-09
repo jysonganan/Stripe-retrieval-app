@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 from oauth_utils import get_oauth_link, save_user_data, get_user_payouts, download_payout_report
 from oauth_utils import check_user_creds, deauthorize_user_handler, check_user_existence
-
+import os
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -70,7 +70,9 @@ def download_csv():
     mode = request.args.get("mode")
     month = request.args.get("current_month")
     year = request.args.get("current_year")
-    filename = download_payout_report(account_id=account_id, mode=mode, month=month, year=year)
+    res = download_payout_report(account_id=account_id, mode=mode, month=month, year=year)
+    filename = os.path.join('UserData', f'{account_id}-PayoutData.csv')
+    res.to_csv(filename, index=False)
     return send_file(filename, mimetype='text/csv', as_attachment=True)
 
 
@@ -112,6 +114,7 @@ def _corsify_actual_response(response):
     return response
 
 # Increasing the TIMEOUT VALUE from 30 Secs to 60 Secs
+
 
 if __name__ == '__main__':
     app.run(debug=True)
