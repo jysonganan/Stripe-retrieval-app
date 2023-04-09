@@ -40,5 +40,8 @@
       "image-src": null,
       "purpose": "Send Data to VercelDeploy"
     }
+  },
+  "constants": {
+    "BACKEND_URL": "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
   }
 }

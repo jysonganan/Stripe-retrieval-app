@@ -10,13 +10,11 @@ import { useState, useEffect } from "react";
 import { createOAuthState } from '@stripe/ui-extension-sdk/oauth';
 
 const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
-// const BACKEND_URL = 'http://localhost:5000/'
-
-const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
-    BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
-
 
 const AppSettings = ({ userContext, environment }: ExtensionContextValue) => {
+    const BACKEND_URL = environment.constants.BACKEND_URL;
+    const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
+    BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
     const { mode } = environment;
     const [deauth, setDeauth] = useState('');
     const [userExist, setUserExist] = useState<boolean>();

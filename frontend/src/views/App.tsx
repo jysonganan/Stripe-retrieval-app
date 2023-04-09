@@ -1,9 +1,11 @@
-import { ContextView, 
-    Button, 
-    Box, 
-    Badge, 
-    Banner, 
-    Spinner } from '@stripe/ui-extension-sdk/ui';
+import {
+    ContextView,
+    Button,
+    Box,
+    Badge,
+    Banner,
+    Spinner
+} from '@stripe/ui-extension-sdk/ui';
 import * as React from 'react';
 import { createOAuthState } from '@stripe/ui-extension-sdk/oauth';
 import type { ExtensionContextValue } from '@stripe/ui-extension-sdk/context';
@@ -12,17 +14,17 @@ import fetchStripeSignature from '@stripe/ui-extension-sdk/signature';
 
 const { useState, useEffect } = React;
 
-
-const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 // const BACKEND_URL = 'http://localhost:5000/'
 
 const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/${mode === 'test' ? 'test/' : 'live/'}apps-oauth/com.example.oauth-example`;
 
-const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
-    BACKEND_URL + `get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
 
 
 const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
+    const BACKEND_URL = environment.constants.BACKEND_URL;
+
+    const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
+        BACKEND_URL + `get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
     const { mode } = environment;
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState<boolean>(true);
@@ -45,7 +47,7 @@ const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
                     mode: mode
                 })
             })
-            if(data.ok){
+            if (data.ok) {
                 setSpinnerOpen(false);
             }
             const result = await data.json();
@@ -53,7 +55,7 @@ const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
 
         }
         getStatus();
-
+        console.log(environment.constants.BACKEND_URL);
     }, [mode]);
     return (
 
