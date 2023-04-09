@@ -24,9 +24,9 @@ const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 
 
 const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue) => {
-    const BACKEND_URL = environment.constants.BACKEND_URL;
+    // const BACKEND_URL = environment.constants.BACKEND_URL;
     const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
-    BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
+        BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
     const maxLengthForMonth: number = 2;
     const maxLengthForYear: number = 4;
     const { mode } = environment;
@@ -165,18 +165,18 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                         alignY: 'center',
                         margin: 'medium'
                     }}>
-                            {payoutLoad && hasSignedIn &&
-                                <Spinner size="large" />
-                            }
-                            {!payoutLoad && hasSignedIn && 
-                                <Button type="primary" onPress={handleSubmit}>Get Data</Button>
-                            }
+                        {payoutLoad && hasSignedIn &&
+                            <Spinner size="large" />
+                        }
+                        {!payoutLoad && hasSignedIn &&
+                            <Button type="primary" onPress={handleSubmit}>Get Data</Button>
+                        }
 
                     </Box>
 
                 </Box>
             }
-{/* 
+            {/* 
             <Box css={{
                 stack: 'z',
                 alignX: 'center',
@@ -259,8 +259,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
                 {gotResponse &&
                     <Button href={downloadEndpoint} type="primary" css={{ width: 'fill', alignX: 'center' }}
-                        target="_blank">Download
-                        CSV</Button>
+                        target="_blank">DownloadCSV</Button>
                 }
 
                 {!hasSignedIn &&

@@ -3,8 +3,8 @@ from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, session, make_response, send_file
 from oauth_utils import get_oauth_link, save_user_data, get_user_payouts, download_payout_report
 from oauth_utils import check_user_creds, deauthorize_user_handler, check_user_existence
+import tempfile
 import os
-
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = ['Content-type', 'Stripe-Signature']
@@ -60,8 +60,13 @@ def get_payouts():
     if request.method == "POST":
         payload_json = json.loads(request.data.decode('utf-8'))
         response = get_user_payouts(payload_json)
-        print(response)
         return _corsify_actual_response(jsonify(response))
+
+def create_temp_downloadable_file(res, account_id):
+    file_name = f'{account_id}-PayoutData-'
+    with tempfile.NamedTemporaryFile(delete=False, prefix=file_name, suffix='.csv') as temp_file:
+        res.to_csv(temp_file, index=False)
+        return temp_file.name
 
 
 @app.route('/download-report/', methods=["GET"])
@@ -71,10 +76,10 @@ def download_csv():
     month = request.args.get("current_month")
     year = request.args.get("current_year")
     res = download_payout_report(account_id=account_id, mode=mode, month=month, year=year)
-    filename = os.path.join('UserData', f'{account_id}-PayoutData.csv')
-    res.to_csv(filename, index=False)
-    return send_file(filename, mimetype='text/csv', as_attachment=True)
-
+    temp_file_path = create_temp_downloadable_file(res, account_id)
+    response =  send_file(temp_file_path, mimetype='text/csv', as_attachment=True)
+    os.remove(temp_file_path)
+    return response
 
 @app.route("/check-user/", methods=["POST"])
 def check_user():
