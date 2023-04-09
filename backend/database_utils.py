@@ -4,8 +4,6 @@ import json
 import os
 
 
-#eDyEpWU6t0463lrC
-
 class DatabaseUtils():
 
     def __init__(self, client=None):
