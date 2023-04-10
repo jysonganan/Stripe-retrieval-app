@@ -2,24 +2,27 @@ import stripe
 import numpy as np
 import pandas as pd
 import datetime
-import time
-
 
 def retrieve_current_payouts(api_key, current_month='', current_year=''):
     stripe.api_key = api_key
-    dt = datetime.datetime(int(current_year), int(current_month), 1)
-    epoch_time = int(time.mktime(dt.timetuple()))
-    new_epoch_time = dt + datetime.timedelta(days=30)
-    new_epoch_time = int(new_epoch_time.timestamp())
+    current_month = int(current_month)
+    current_year = int(current_year)
+    start_date = datetime.datetime(current_year, current_month, 1)
+    if current_month == 12:
+        end_date = datetime.date(current_year+1, 1, 1) - datetime.timedelta(days=1)
+    else:
+        end_date = datetime.date(current_year, current_month+1, 1) - datetime.timedelta(days=1)
+    start_epoch = int(datetime.datetime(start_date.year, start_date.month, start_date.day).timestamp())
+    end_epoch = int(datetime.datetime(end_date.year, end_date.month, end_date.day).timestamp())
 
-    data_2 = stripe.Payout.list(arrival_date={
-        'gte': f'{epoch_time}',
-        'lt': f'{new_epoch_time}'
+    payout_data = stripe.Payout.list(arrival_date={
+        'gte': f'{start_epoch}',
+        'lt': f'{end_epoch}'
     })
     vals = []
     result = pd.DataFrame()
-    for i in range(0, len(data_2)):
-        vals.append(data_2.data[i]["id"])
+    for i in range(0, len(payout_data)):
+        vals.append(payout_data.data[i]["id"])
 
     for val in vals:
         transactions = stripe.BalanceTransaction.list(payout=val, limit=100)
@@ -41,4 +44,3 @@ def retrieve_current_payouts(api_key, current_month='', current_year=''):
         result.columns = ['payout_id', 'payout_total', 'Created', 'Description', 'Amount', 'Currency',
                                 'Converted Amount', 'Fees', 'Net']
     return result
-
