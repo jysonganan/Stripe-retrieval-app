@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { createOAuthState } from "@stripe/ui-extension-sdk/oauth";
 import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
-
+import PayoutListView from "./PayoutListVIew";
 
 const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 // const BACKEND_URL = 'http://localhost:5000/'
@@ -30,7 +30,6 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
     const maxLengthForMonth: number = 2;
     const maxLengthForYear: number = 4;
     const { mode } = environment;
-    let viewData: object = {}
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState(true)
@@ -100,38 +99,20 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else if (response.ok) {
-            console.log(response)
             setPayoutData(true)
             setPayoutLoad(false)
         }
 
-        const data = await response.json()
-        setMyData(JSON.parse(data.output_df_json));
-        setHasSignedIn(data.hasSignedIn);
-        setgotResponse(data.hasData)
-        if (data.error) {
+        const result = await response.json()
+        if (result.hasData == true) {
+            setMyData(JSON.parse(result.output_df_json))
+        }
+        setHasSignedIn(result.hasSignedIn);
+        setgotResponse(result.hasData)
+        if (result.error) {
             setSpinnerOpen(false);
         }
-
-
     }
-
-    let created: never[] = []
-    let descr: never[] = []
-    let amount: never[] = []
-    let net: never[] = []
-    const values = Object.values(data)
-    for (let val in values) {
-        created.push(values[val].Created)
-        descr.push(values[val].Description)
-        net.push(values[val].Net)
-    }
-    let new_created = created.map(create => new Date(create).toLocaleString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    }))
-
 
     return (
         <ContextView title="PayoutView">
@@ -147,11 +128,12 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             </Box>
             {!spinnerOpen && hasSignedIn &&
                 <Box css={{
-                    padding: 'medium',
+                    padding: 'small',
                     color: 'primary',
                     borderRadius: 'large',
 
                 }}>
+
                     <FormFieldGroup legend="Enter Month and Year"
                         description="Enter the Year and Month from which you want to fetch data">
                         <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth}
@@ -159,6 +141,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                         <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year"
                             name="year" placeholder="YYYY" hiddenElements={['label']} />
                     </FormFieldGroup>
+
                     <Box css={{
                         stack: 'z',
                         alignX: 'center',
@@ -176,16 +159,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
 
                 </Box>
             }
-            {/* 
-            <Box css={{
-                stack: 'z',
-                alignX: 'center',
-                alignY: 'center'
-            }}>
-                {payoutLoad && hasSignedIn &&
-                    <Spinner size="large" />
-                }
-            </Box> */}
+
 
             {!gotPayoutData && hasSignedIn && !spinnerOpen &&
                 <Badge type="info">
@@ -198,63 +172,35 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                     There is no Data Present for this Month and Year
                 </Badge>
             }
+            {gotResponse && hasSignedIn &&
+                <Box css={{
+                    padding: 'xsmall',
+                    color: 'primary',
+                    borderRadius: 'xsmall',
+                }}>
+                    <Badge
+                        type="info">
+                        Total Payouts for this Month and Year: {data.length}
+                    </Badge>
 
+                </Box>
+            }
             {gotResponse && hasSignedIn && <List>
-                <ListItem
-                    value={net[0]}
-                    id="2"
-                    title={<Box>{new_created[0]}</Box>}
-                    secondaryTitle={<Box>{descr[0]}</Box>}
-                />
-                <ListItem
-                    value={net[1]}
-                    id="2"
-                    title={<Box>{new_created[1]}</Box>}
-                    secondaryTitle={<Box>{descr[1]}</Box>}
-                />
-                <ListItem
-                    value={net[2]}
-                    id="2"
-                    title={<Box>{new_created[2]}</Box>}
-                    secondaryTitle={<Box>{descr[2]}</Box>}
-                />
-                <ListItem
-                    value={net[3]}
-                    id="2"
-                    title={<Box>{new_created[3]}</Box>}
-                    secondaryTitle={<Box>{descr[3]}</Box>}
-                />
-                <ListItem
-                    value={net[4]}
-                    id="2"
-                    title={<Box>{new_created[4]}</Box>}
-                    secondaryTitle={<Box>{descr[4]}</Box>}
-                />
-                <ListItem
-                    value={net[5]}
-                    id="2"
-                    title={<Box>{new_created[5]}</Box>}
-                    secondaryTitle={<Box>{descr[5]}</Box>}
-                />
-                <ListItem
-                    value={net[6]}
-                    id="2"
-                    title={<Box>{new_created[6]}</Box>}
-                    secondaryTitle={<Box>{descr[6]}</Box>}
-                />
-                <ListItem
-                    value={net[7]}
-                    id="2"
-                    title={<Box>{new_created[7]}</Box>}
-                    secondaryTitle={<Box>{descr[7]}</Box>}
-                />
-                <ListItem
-                    value={net[8]}
-                    id="2"
-                    title={<Box>{new_created[8]}</Box>}
-                    secondaryTitle={<Box>{descr[8]}</Box>}
-                />
-            </List>}
+                {data.map((inline_data) => (
+                    <ListItem
+                        value={inline_data.Net}
+                        id="1"
+                        title={new Date(inline_data.Created).toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                        })}
+                        secondaryTitle={<Box>{inline_data.Description}</Box>}
+                    />
+                ))
+                }
+            </List>
+            }
 
             <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
                 {gotResponse &&
