@@ -99,13 +99,17 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else if (response.ok) {
-            setPayoutData(true)
+
             setPayoutLoad(false)
         }
 
         const result = await response.json()
         if (result.hasData == true) {
+            setPayoutData(false)
             setMyData(JSON.parse(result.output_df_json))
+        }
+        else if(result.hasData == false){
+            setPayoutData(true)
         }
         setHasSignedIn(result.hasSignedIn);
         setgotResponse(result.hasData)
@@ -161,13 +165,13 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             }
 
 
-            {!gotPayoutData && hasSignedIn && !spinnerOpen &&
+            {!gotPayoutData && !gotResponse && hasSignedIn && !spinnerOpen &&
                 <Badge type="info">
                     Please Enter Month and Year Values, to view Data
                 </Badge>
             }
 
-            {gotPayoutData && !data.length && hasSignedIn &&
+            {gotPayoutData && gotResponse && !data.length && hasSignedIn &&
                 <Badge type="warning">
                     There is no Data Present for this Month and Year
                 </Badge>
@@ -208,7 +212,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                         target="_blank">DownloadCSV</Button>
                 }
 
-                {!hasSignedIn &&
+                {!hasSignedIn && !spinnerOpen &&
                     <Banner
                         type="critical"
                         title="You have not Sign In"
