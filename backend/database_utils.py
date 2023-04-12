@@ -10,7 +10,7 @@ class DatabaseUtils():
         self.user_password = os.environ.get("MONGODB_PASSWORD")
         if client is None:
             client = pymongo.MongoClient(
-                f"mongodb+srv://jayateerthd:{self.user_password}@striperetrievalapp.n303ttp.mongodb.net/?retryWrites=true&w=majority")
+                f"mongodb+srv://junyansong:{self.user_password}@accomptantmongodb.dnwkchu.mongodb.net/?retryWrites=true&w=majority")
             db = client["UserInfo"]
             collection = db["UserData"]
         self.salt = b"tyUQW@*A"
