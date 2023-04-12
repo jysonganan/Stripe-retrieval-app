@@ -16,7 +16,6 @@ import { useEffect, useState } from "react";
 import { createOAuthState } from "@stripe/ui-extension-sdk/oauth";
 import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
-import PayoutListView from "./PayoutListVIew";
 
 const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
 // const BACKEND_URL = 'http://localhost:5000/'
@@ -110,6 +109,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         }
         else if(result.hasData == false){
             setPayoutData(true)
+            // setgotResponse(true)
         }
         setHasSignedIn(result.hasSignedIn);
         setgotResponse(result.hasData)
@@ -165,13 +165,13 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             }
 
 
-            {!gotPayoutData && !gotResponse && hasSignedIn && !spinnerOpen &&
+            {!gotPayoutData && gotResponse && hasSignedIn && !spinnerOpen &&
                 <Badge type="info">
                     Please Enter Month and Year Values, to view Data
                 </Badge>
             }
 
-            {gotPayoutData && gotResponse && !data.length && hasSignedIn &&
+            {gotPayoutData && !gotResponse && !data.length && hasSignedIn &&
                 <Badge type="warning">
                     There is no Data Present for this Month and Year
                 </Badge>
