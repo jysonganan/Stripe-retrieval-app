@@ -38,7 +38,7 @@ def get_oauth_link(data):
             "mode": mode
         }
 
-    url = "https://connect.stripe.com/oauth/authorize?{}".format(
+    url = "https://connect.stripe.com/oauth/authorize/?{}".format(
         urllib.parse.urlencode(args))
     return url
 
@@ -49,7 +49,7 @@ def save_user_data(get_data):
     try:
         if oauth_mode.lower() == 'live':
             stripe.api_key = os.environ.get("STRIPE_SECRET_KEY_LIVE")
-            response = str.OAuth.token(
+            response = stripe.OAuth.token(
                 grant_type="authorization_code", code=code, )
         else:
             stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
