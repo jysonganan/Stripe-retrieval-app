@@ -133,7 +133,6 @@ def get_user_payouts(data):
     thread.join(timeout=60)
 
     if thread.is_alive():
-        print("Thread Error")
         response["error"] = True
         response["hasData"] = False
         return response

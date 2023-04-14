@@ -76,7 +76,8 @@ def download_csv():
     year = request.args.get("current_year")
     res = download_payout_report(account_id=account_id, mode=mode, month=month, year=year)
     temp_file_path = create_temp_downloadable_file(res, account_id)
-    response = send_file(temp_file_path, mimetype='text/csv', as_attachment=True)
+    file_name = f"PayoutReport--{year}-{month}.csv"
+    response = send_file(temp_file_path, mimetype='text/csv', as_attachment=True, download_name=file_name)
     os.remove(temp_file_path)
     return response
 

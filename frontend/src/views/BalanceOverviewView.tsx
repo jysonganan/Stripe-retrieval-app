@@ -17,9 +17,6 @@ import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
 import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
-// const BACKEND_URL = 'https://stripe-backend-k7b4-jayateerthdambal.vercel.app/';
-// const BACKEND_URL = 'http://localhost:5000/'
-
 
 const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
     const BACKEND_URL = environment.constants.BACKEND_URL;
@@ -44,7 +41,6 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
             setAuthURL(getAuthURL(state, challenge, mode));
         });
 
-
         const getStatus = async () => {
             const data = await fetch(BACKEND_URL + 'health-check/', {
                 method: "POST",
@@ -65,7 +61,6 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
             const result = await data.json();
             setHasSignedIn(result.hasSignedIn);
         }
-
         getStatus();
     }, []);
 
@@ -161,25 +156,26 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
                 </Box>
             }
 
-
             {!gotPayoutData && gotResponse && hasSignedIn &&
-                <Badge type="warning">
-                    There is no Data Present for this Month and Year
-                </Badge>
+                    <Badge type="warning">
+                        There are no Payouts present for this Month and Year.
+                    </Badge>
             }
+
             {gotResponse && hasSignedIn && gotPayoutData &&
                 <Box css={{
-                    padding: 'xsmall',
-                    color: 'primary',
-                    borderRadius: 'xsmall',
+                    stack: 'z',
+                    alignX: 'center',
+                    alignY: 'center',
                 }}>
                     <Badge
                         type="info">
-                        Total Payouts for this Month and Year: {data.length}
+                        Total Number of Payouts : {data.length}
                     </Badge>
 
                 </Box>
             }
+
             {gotResponse && hasSignedIn && <List>
                 {data.map((inline_data) => (
                     <ListItem
@@ -198,7 +194,7 @@ const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) 
             }
 
             <Box css={{stack: 'y', gap: 'large', margin: 'large'}}>
-                {gotResponse && gotPayoutData && 
+                {gotResponse && gotPayoutData &&
                     <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}}
                             target="_blank">DownloadCSV</Button>
                 }
