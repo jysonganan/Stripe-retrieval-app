@@ -22,7 +22,6 @@ const getRedirectURL = (mode: 'live' | 'test') => `https://dashboard.stripe.com/
 
 const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
     const BACKEND_URL = environment.constants.BACKEND_URL;
-
     const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
         BACKEND_URL + `get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
     const { mode } = environment;
@@ -55,7 +54,6 @@ const OAuthApp = ({ environment, userContext }: ExtensionContextValue) => {
 
         }
         getStatus();
-        console.log(environment.constants.BACKEND_URL);
     }, [mode]);
     return (
 

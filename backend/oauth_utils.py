@@ -10,36 +10,35 @@ import threading
 import queue
 
 database_utils = DatabaseUtils()
-
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-function_timeout = int(os.environ.get("FUNCTION_INVOCATION_TIMEOUT", "60"))
+stripe.api_key = ""
 oauth_mode = ""
+redirect_uri = "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize_oauth/"
 
 
 def get_oauth_link(data):
     global oauth_mode
-    state = data["state"]
     mode = data["mode"]
     oauth_mode = mode
     if oauth_mode.lower() == 'live':
         args = {
             "client_id": os.environ.get("STRIPE_CLIENT_ID_LIVE"),
-            "state": state,
             "scope": "read_write",
             "response_type": "code",
-            "mode": mode
+            "mode": mode,
+            "redirect_uri": redirect_uri
         }
     else:
         args = {
             "client_id": os.environ.get("STRIPE_CLIENT_ID"),
-            "state": state,
             "scope": "read_write",
             "response_type": "code",
-            "mode": mode
+            "mode": mode,
+            "redirect_uri": redirect_uri
         }
 
-    url = "https://connect.stripe.com/oauth/authorize/?{}".format(
+    url = "https://connect.stripe.com/oauth/authorize?{}".format(
         urllib.parse.urlencode(args))
+    print("URL: ", url)
     return url
 
 
@@ -80,7 +79,6 @@ def check_user_creds(account_id, mode):
     try:
         user_access_token = database_utils.find_in_db(
             account_id=account_id, mode=mode)
-
         if mode.lower() == 'live':
             stripe.api_key = os.environ.get("STRIPE_SECRET_KEY_LIVE")
         else:
@@ -164,7 +162,7 @@ def deauthorize_user_handler(account_id, mode):
         stripe.api_key = os.environ.get("STRIPE_SECRET_KEY_LIVE")
         res = stripe.OAuth.deauthorize(
             stripe_user_id=account_id,
-            client_id=os.environ.get("STRIPE_CLIENT_ID")
+            client_id=os.environ.get("STRIPE_CLIENT_ID_LIVE")
         )
     else:
         stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")

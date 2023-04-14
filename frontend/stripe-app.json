@@ -1,5 +1,5 @@
 {
-  "id": "com.example.myStripePayout",
+  "id": "com.example.stripe-app_-payout",
   "version": "0.0.2",
   "name": "StripeRetrievalApp",
   "icon": "",
@@ -29,19 +29,19 @@
     ],
     "content_security_policy": {
       "connect-src": [
-        "https://stripe-retrieval-app.vercel.app/health-check/",
-        "https://stripe-retrieval-app.vercel.app/get-oauth-link/",
-        "https://stripe-retrieval-app.vercel.app/authorize_oauth/",
-        "https://stripe-retrieval-app.vercel.app/get_payouts/",
-        "https://stripe-retrieval-app.vercel.app/download-report/",
-        "https://stripe-retrieval-app.vercel.app/check-user/",
-        "https://stripe-retrieval-app.vercel.app/deauthorize_user/"
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/health-check/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get-oauth-link/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize_oauth/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get_payouts/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/download-report/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/check-user/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/deauthorize_user/"
        ],
       "image-src": null,
       "purpose": "Send Data to VercelDeploy"
     }
   },
   "constants": {
-    "BACKEND_URL": "https://stripe-retrieval-app.vercel.app/"
+    "BACKEND_URL": "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
   }
 }
