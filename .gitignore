@@ -1,1 +1,2 @@
-./backend/UserData/UserInfo.json
+venv/
+.idea/
