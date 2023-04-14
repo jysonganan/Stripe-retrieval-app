@@ -9,8 +9,8 @@ from cryptography.fernet import Fernet
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-
+stripe.api_key = ""
+account_id = ""
 
 # Getting Stripe Secret Store API LIst
 # secret_list = stripe.apps.Secret.list(
@@ -21,11 +21,14 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 # print(secret_list)
 #
 # 2. Getting a List of Connected Accounts
+
 # list_accounts = stripe.Account.list(limit=10)
 # for i in range(0, len(list_accounts)):
 #     print(list_accounts.data[i]['id'])
 
-# 3. Creating a Payout
+
+# # 3. Creating a Payout
+#
 # res = stripe.Payout.list(stripe_account=account_id, limit=10)
 # print(res)
 
@@ -78,11 +81,11 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 # print(fetch_access_token("acct_1JD9NgCgQjBmqTNT"))
 
 # 8. Deauthorize a Connected Account
+
 # res = stripe.OAuth.deauthorize(
-#     stripe_user_id="acct_1MjhJiSAv0t2qRwW",
-#     client_id="ca_NMVdZWTZSaRhb4nrYRxpPwJ3un4nMSqI"
+#     stripe_user_id=account_id,
+#     client_id="ca_NMVdVoKnClukQxXnpelPOO31RlXEv1kV"
 # )
-#
 # print(res)
 
 # Setting a Secret Key
@@ -115,14 +118,16 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 #         encrypted_token = self.fer_obj.encrypt(token.encode())
 #         encrypted_token = encrypted_token + self.salt + self.key
 #         return encrypted_token
-    
+
 #     def decryption(self, encrypted_access_token):
 #         decrypted_access_token = self.fer_obj.decrypt(encrypted_access_token).decode()
 #         return decrypted_access_token
-            
-# stripe.api_key = ""
 #
-#
-# stripe.Payout.create(amount=5000, currency="inr")
-#
-#
+# # Create an account link
+# account_link = stripe.AccountLink.create(
+#     account=account_id,
+#     refresh_url='https://localhost:5000/authorize_oauth',
+#     return_url="https://dashboard.stripe.com/dashboard",
+#     type='account_onboarding',
+# )
+# print(account_link)

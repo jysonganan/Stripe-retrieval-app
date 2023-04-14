@@ -5,6 +5,7 @@ from oauth_utils import get_oauth_link, save_user_data, get_user_payouts, downlo
 from oauth_utils import check_user_creds, deauthorize_user_handler, check_user_existence
 import tempfile
 import os
+
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = ['Content-type', 'Stripe-Signature']
@@ -26,7 +27,6 @@ def add_csp_headers(response):
 @app.route("/get-oauth-link/", methods=["GET", 'POST'])
 def construct_oauth_link():
     get_data = request.args.to_dict()
-    session['state'] = get_data['state']
     url = get_oauth_link(data=get_data)
     return redirect(url)
 
@@ -34,8 +34,6 @@ def construct_oauth_link():
 @app.route("/authorize_oauth/", methods=["GET"])
 def handle_oauth_redirect():
     get_data = request.args.to_dict()
-    if request.args.get("state") != session['state']:
-        return json.dumps({"error": "Incorrect state parameter: " + request.args.get("state")}), 403
     url = save_user_data(get_data=get_data)
     return redirect(url)
 
@@ -62,6 +60,7 @@ def get_payouts():
         response = get_user_payouts(payload_json)
         return _corsify_actual_response(jsonify(response))
 
+
 def create_temp_downloadable_file(res, account_id):
     file_name = f'{account_id}-PayoutData-'
     with tempfile.NamedTemporaryFile(delete=False, prefix=file_name, suffix='.csv') as temp_file:
@@ -77,9 +76,10 @@ def download_csv():
     year = request.args.get("current_year")
     res = download_payout_report(account_id=account_id, mode=mode, month=month, year=year)
     temp_file_path = create_temp_downloadable_file(res, account_id)
-    response =  send_file(temp_file_path, mimetype='text/csv', as_attachment=True)
+    response = send_file(temp_file_path, mimetype='text/csv', as_attachment=True)
     os.remove(temp_file_path)
     return response
+
 
 @app.route("/check-user/", methods=["POST"])
 def check_user():
@@ -117,6 +117,7 @@ def _build_cors_preflight_response():
 def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
 
 # Increasing the TIMEOUT VALUE from 30 Secs to 60 Secs
 

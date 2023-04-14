@@ -8,7 +8,7 @@ import AppSettings from '../src/views/AppSettings';
 
 
 export * from '@stripe/ui-extension-sdk/version';
-export const BUILD_TIME = '2023-04-11 22:06:32.571776 -0700 PDT m=+0.036500546'
+export const BUILD_TIME = '2023-04-13 20:18:27.858506955 +0530 IST m=+0.010942427'
 
 export {
 	
@@ -20,7 +20,7 @@ export {
 	
 };
 export default {
-  "id": "com.example.myStripePayout",
+  "id": "com.example.stripe-app_-payout",
   "version": "0.0.2",
   "name": "StripeRetrievalApp",
   "icon": "",
@@ -48,23 +48,21 @@ export default {
         "component": "AppSettings"
       }
     ],
-    "actions": null,
     "content_security_policy": {
       "connect-src": [
-        "https://stripe-retrieval-app.vercel.app/health-check/",
-        "https://stripe-retrieval-app.vercel.app/get-oauth-link/",
-        "https://stripe-retrieval-app.vercel.app/authorize_oauth/",
-        "https://stripe-retrieval-app.vercel.app/get_payouts/",
-        "https://stripe-retrieval-app.vercel.app/download-report/",
-        "https://stripe-retrieval-app.vercel.app/check-user/",
-        "https://stripe-retrieval-app.vercel.app/deauthorize_user/"
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/health-check/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get-oauth-link/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/authorize_oauth/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/get_payouts/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/download-report/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/check-user/",
+        "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/deauthorize_user/"
       ],
       "image-src": null,
       "purpose": "Send Data to VercelDeploy"
     }
   },
-  "post_install_action": null,
   "constants": {
-    "BACKEND_URL": "https://stripe-retrieval-app.vercel.app/"
+    "BACKEND_URL": "https://stripe-backend-k7b4-jayateerthdambal.vercel.app/"
   }
 }

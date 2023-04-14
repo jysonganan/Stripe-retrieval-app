@@ -11,9 +11,9 @@ import {
     Spinner,
     Inline
 } from "@stripe/ui-extension-sdk/ui";
-import type { ExtensionContextValue } from "@stripe/ui-extension-sdk/context";
-import { useEffect, useState } from "react";
-import { createOAuthState } from "@stripe/ui-extension-sdk/oauth";
+import type {ExtensionContextValue} from "@stripe/ui-extension-sdk/context";
+import {useEffect, useState} from "react";
+import {createOAuthState} from "@stripe/ui-extension-sdk/oauth";
 import fetchStripeSignature from "@stripe/ui-extension-sdk/signature";
 import * as React from "react";
 
@@ -21,27 +21,26 @@ import * as React from "react";
 // const BACKEND_URL = 'http://localhost:5000/'
 
 
-
-const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue) => {
+const BalanceOverviewView = ({userContext, environment}: ExtensionContextValue) => {
     const BACKEND_URL = environment.constants.BACKEND_URL;
     const getAuthURL = (state: string, challenge: string, mode: 'live' | 'test') =>
         BACKEND_URL + `/get-oauth-link/?response_type=code&client&redirect&state=${state}&code_challenge=${challenge}&mode=${mode}&code_challenge_method=S256`;
     const maxLengthForMonth: number = 2;
     const maxLengthForYear: number = 4;
-    const { mode } = environment;
+    const {mode} = environment;
     const [data, setMyData] = useState([]);
     const [authURL, setAuthURL] = useState('');
     const [hasSignedIn, setHasSignedIn] = useState(true)
     const [monthValue, setMonthValue] = useState('');
     const [yearValue, setYearValue] = useState('');
-    const [gotPayoutData, setPayoutData] = useState<boolean>(false)
+    const [gotPayoutData, setPayoutData] = useState<boolean>(true)
     const [gotResponse, setgotResponse] = useState<boolean>(false)
     const [spinnerOpen, setSpinnerOpen] = useState<boolean>(true)
     const [payoutLoad, setPayoutLoad] = useState<boolean>(false)
     const downloadEndpoint = `${BACKEND_URL}download-report/?account_id=${userContext?.account.id}&current_month=${monthValue}&current_year=${yearValue}&mode=${mode}`;
 
     useEffect(() => {
-        createOAuthState().then(({ state, challenge }) => {
+        createOAuthState().then(({state, challenge}) => {
             setAuthURL(getAuthURL(state, challenge, mode));
         });
 
@@ -98,21 +97,19 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         } else if (response.ok) {
-
             setPayoutLoad(false)
+            setgotResponse(true)
         }
 
         const result = await response.json()
         if (result.hasData == true) {
-            setPayoutData(false)
-            setMyData(JSON.parse(result.output_df_json))
-        }
-        else if(result.hasData == false){
             setPayoutData(true)
-            // setgotResponse(true)
+            setMyData(JSON.parse(result.output_df_json))
+        } else if (result.hasData == false) {
+            setPayoutData(false)
+            setMyData([])
         }
         setHasSignedIn(result.hasSignedIn);
-        setgotResponse(result.hasData)
         if (result.error) {
             setSpinnerOpen(false);
         }
@@ -127,7 +124,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 alignY: 'center'
             }}>
                 {spinnerOpen && hasSignedIn &&
-                    <Spinner size="large" />
+                    <Spinner size="large"/>
                 }
             </Box>
             {!spinnerOpen && hasSignedIn &&
@@ -139,11 +136,11 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                 }}>
 
                     <FormFieldGroup legend="Enter Month and Year"
-                        description="Enter the Year and Month from which you want to fetch data">
+                                    description="Enter the Year and Month from which you want to fetch data">
                         <TextField type="number" onChange={monthValueHandler} maxLength={maxLengthForMonth}
-                            label="Month" name="month" placeholder="MM" hiddenElements={['label']} />
+                                   label="Month" name="month" placeholder="MM" hiddenElements={['label']}/>
                         <TextField type="number" onChange={yearValueHandler} maxLength={maxLengthForYear} label="Year"
-                            name="year" placeholder="YYYY" hiddenElements={['label']} />
+                                   name="year" placeholder="YYYY" hiddenElements={['label']}/>
                     </FormFieldGroup>
 
                     <Box css={{
@@ -153,7 +150,7 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
                         margin: 'medium'
                     }}>
                         {payoutLoad && hasSignedIn &&
-                            <Spinner size="large" />
+                            <Spinner size="large"/>
                         }
                         {!payoutLoad && hasSignedIn &&
                             <Button type="primary" onPress={handleSubmit}>Get Data</Button>
@@ -165,18 +162,12 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             }
 
 
-            {!gotPayoutData && gotResponse && hasSignedIn && !spinnerOpen &&
-                <Badge type="info">
-                    Please Enter Month and Year Values, to view Data
-                </Badge>
-            }
-
-            {gotPayoutData && !gotResponse && !data.length && hasSignedIn &&
+            {!gotPayoutData && gotResponse && hasSignedIn &&
                 <Badge type="warning">
                     There is no Data Present for this Month and Year
                 </Badge>
             }
-            {gotResponse && hasSignedIn &&
+            {gotResponse && hasSignedIn && gotPayoutData &&
                 <Box css={{
                     padding: 'xsmall',
                     color: 'primary',
@@ -206,10 +197,10 @@ const BalanceOverviewView = ({ userContext, environment }: ExtensionContextValue
             </List>
             }
 
-            <Box css={{ stack: 'y', gap: 'large', margin: 'large' }}>
-                {gotResponse &&
-                    <Button href={downloadEndpoint} type="primary" css={{ width: 'fill', alignX: 'center' }}
-                        target="_blank">DownloadCSV</Button>
+            <Box css={{stack: 'y', gap: 'large', margin: 'large'}}>
+                {gotResponse && gotPayoutData && 
+                    <Button href={downloadEndpoint} type="primary" css={{width: 'fill', alignX: 'center'}}
+                            target="_blank">DownloadCSV</Button>
                 }
 
                 {!hasSignedIn && !spinnerOpen &&
